@@ -186,3 +186,29 @@ func TestBytes(t *testing.T) {
 		i++
 	}
 }
+
+func TestCompare_Empty(t *testing.T) {
+	imgEmpty1 := NewImage()
+	imgEmpty2 := NewImage()
+	px, err := imgEmpty1.Compare(imgEmpty2, nil)
+	if px != -1 && err != ErrImageIsEmpty {
+		t.Error("Images should be empty.")
+	}
+}
+
+func TestCompare_Identical(t *testing.T) {
+	paths := []string{
+		"./res/kitten1.png",
+		"./res/kitten1.png",
+	}
+	images := make([]*Image, 2)
+	for i, p := range paths {
+		images[i] = NewImage()
+		images[i].SetPath(p)
+		images[i].Load()
+	}
+	px, err := images[0].Compare(images[1], nil)
+	if px != 0 || err != nil {
+		t.Error("Images should be identical.")
+	}
+}

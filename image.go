@@ -2,17 +2,29 @@ package pixmatch
 
 import (
 	"bytes"
+	"fmt"
 	"image"
 	"image/color"
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
+	"math"
 	"os"
 	"sync"
 )
 
-// ImagesCount total images to compare probably won't ever change.
-const ImagesCount = 2
+const (
+	// YIQDeltaMax is the value of 35215. This is the maximum possible value
+	// for the YIQ difference metric.
+	// Read about YIQ NTSC https://en.wikipedia.org/wiki/YIQ
+	YIQDeltaMax = 35215
+
+	// ImagesCount total images to compare probably won't ever change.
+	ImagesCount = 2
+
+	// pixOffset is bytes offset to get next color.
+	offset = 4
+)
 
 // Image represents the images structure.
 type Image struct {
@@ -36,8 +48,8 @@ func (img *Image) SetPath(path string) {
 
 // DimensionsEqual checks that dimensions of the image is equal to dimension
 // of other image.
-func (img1 *Image) DimensionsEqual(img2 *Image) (bool, error) {
-	if img1.Bounds().Eq(img2.Bounds()) {
+func (img *Image) DimensionsEqual(img2 *Image) (bool, error) {
+	if img.Bounds().Eq(img2.Bounds()) {
 		return true, nil
 	}
 	return false, ErrDimensionsDoNotMatch
@@ -93,17 +105,48 @@ func (img *Image) Load() error {
 	return nil
 }
 
+// Compare returns the number of different pixels.
+func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
+	diff := 0
+	if opts == nil {
+		opts = NewOptions()
+	}
+
+	// If empty images return error.
+	if img.Empty() || img2.Empty() {
+		return -1, ErrImageIsEmpty
+	}
+
+	// If bytes are the same just return nothing to compare more.
+	if img.Identical(img2) {
+		// draw output
+		return diff, nil
+	}
+	maxDelta := YIQDeltaMax * math.Pow(opts.Threshold, 2.0)
+
+	for y := 0; y <= img.Bounds().Dy(); y++ {
+		for x := 0; x <= img.Bounds().Dx(); x++ {
+			// TODO WORK
+			// fmt.Printf("(%d, %d),", x, y)
+		}
+	}
+
+	fmt.Println("\nmaxDelta", maxDelta)
+
+	return diff, nil
+}
+
 // Identical checks images that these are identical on bytes level.
 // Looks like bytes.Equal() is the fastest way to compare 2 bytes arrays.
 // Tried reflect.DeepEqual() and loop solutions. In the most cases
 // bytes.Equal() is the best choice.
-func (img1 *Image) Identical(img2 *Image) bool {
-	return bytes.Equal(img1.Bytes(), img2.Bytes())
+func (img *Image) Identical(img2 *Image) bool {
+	return bytes.Equal(img.Bytes(), img2.Bytes())
 }
 
 // Bytes get the raw bytes of the image.
 // NOTE Is there any better way to make this in better way?
-// TODO make jpeg
+// TODO add JPEG support
 func (img *Image) Bytes() []byte {
 	switch img.ColorModel() {
 	case color.RGBAModel:
