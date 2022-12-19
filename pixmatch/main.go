@@ -8,9 +8,9 @@ import (
 )
 
 func main() {
-	f1 := "../res/kitten1.png"
-	// f2 := "./kitten2.png"
-	f2 := "../res/kitten-small.png"
+	f1 := "../res/1x1.png"
+	f2 := "../res/kitten2.png"
+	// f2 := "../res/kitten-small.png"
 
 	img1 := pixmatch.NewImage()
 	img1.SetPath(f1)
@@ -23,9 +23,11 @@ func main() {
 		exitErr(pixmatch.ExitFSFail, err)
 	}
 
-	fmt.Println(images[0].DimensionsEqual(images[1]))
-	fmt.Printf("%+v\n", images[0])
-	fmt.Printf("%+v\n", images[1])
+	// fmt.Println(images[0].DimensionsEqual(images[1]))
+	fmt.Printf("%+v\n", images[0].Identical(images[1]))
+	// fmt.Printf("%+v\n", images[0].Image.(*image.RGBA).Pix)
+	// fmt.Printf("%+v\n", images[0])
+	// fmt.Printf("%+v\n", images[1])
 }
 
 func exitErr(status int, errs ...error) {

@@ -1,7 +1,9 @@
 package pixmatch
 
 import (
+	"bytes"
 	"image"
+	"image/color"
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
@@ -89,4 +91,47 @@ func (img *Image) Load() error {
 		return err
 	}
 	return nil
+}
+
+// Identical checks images that these are identical on bytes level.
+// Looks like bytes.Equal() is the fastest way to compare 2 bytes arrays.
+// Tried reflect.DeepEqual() and loop solutions. In the most cases
+// bytes.Equal() is the best choice.
+func (img1 *Image) Identical(img2 *Image) bool {
+	return bytes.Equal(img1.Bytes(), img2.Bytes())
+}
+
+// Bytes get the raw bytes of the image.
+// NOTE Is there any better way to make this in better way?
+// TODO make jpeg
+func (img *Image) Bytes() []byte {
+	switch img.ColorModel() {
+	case color.RGBAModel:
+		return img.Image.(*image.RGBA).Pix
+	case color.RGBA64Model:
+		return img.Image.(*image.RGBA64).Pix
+	case color.NRGBAModel:
+		return img.Image.(*image.NRGBA).Pix
+	case color.NRGBA64Model:
+		return img.Image.(*image.NRGBA64).Pix
+	case color.AlphaModel:
+		return img.Image.(*image.Alpha).Pix
+	case color.Alpha16Model:
+		return img.Image.(*image.Alpha16).Pix
+	case color.GrayModel:
+		return img.Image.(*image.Gray).Pix
+	case color.Gray16Model:
+		return img.Image.(*image.Gray16).Pix
+		// case color.NYCbCrAModel:
+		// 	return img.Image.(*image.NYCbCrA).Y
+		// case color.YCbCrModel:
+		// 	return img.Image.(*image.YCbCr).Y
+	}
+
+	switch img.ColorModel().(type) {
+	case color.Palette:
+		return img.Image.(*image.Paletted).Pix
+	}
+
+	return []byte{}
 }
