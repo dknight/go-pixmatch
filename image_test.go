@@ -1,8 +1,10 @@
 package pixmatch
 
 import (
+	"fmt"
 	"image"
 	"io"
+	"os"
 	"reflect"
 	"testing"
 )
@@ -17,12 +19,23 @@ func TestNewImage(t *testing.T) {
 	}
 }
 
+func TestLoadFromPath(t *testing.T) {
+	path := "./res/kitten1.png"
+	img, err := NewFromPath(path)
+	if err != nil {
+		t.Error(err)
+	}
+	if path != img.Path {
+		t.Error("Expected", path, "got", img.Path)
+	}
+}
+
 func TestImageSetPath(t *testing.T) {
-	exp := "./hello.png"
+	path := "./res/kitten1.png"
 	img := NewImage()
-	img.SetPath(exp)
-	if exp != img.Path {
-		t.Error("Expected", exp, "got", img.Path)
+	img.SetPath(path)
+	if path != img.Path {
+		t.Error("Expected", path, "got", img.Path)
 	}
 }
 
@@ -48,7 +61,7 @@ func TestImageLoad(t *testing.T) {
 	img.SetPath(path)
 	err = img.Load()
 	if err == nil {
-		t.Error("File", path, "cannot be decoded correctly.")
+		t.Error("File", path, "cannot be decoded correctly")
 	}
 
 	path = "./res/nonimg.txt"
@@ -56,7 +69,7 @@ func TestImageLoad(t *testing.T) {
 	img.SetPath(path)
 	err = img.Load()
 	if err != image.ErrFormat {
-		t.Error("File", path, "is not an image.")
+		t.Error("File", path, "is not an image")
 	}
 }
 
@@ -64,27 +77,41 @@ func TestLoadImages(t *testing.T) {
 	paths := []string{
 		"./res/kitten1.png",
 		"./res/kitten-small.png",
-		"./res/corrupted.png",
 	}
-	images := make([]*Image, 3)
+	images := []*Image{}
 
-	for i, p := range paths {
-		images[i] = NewImage()
-		images[i].SetPath(p)
+	for _, p := range paths {
+		im, _ := NewFromPath(p)
+		images = append(images, im)
 	}
-	imgs := [ImagesCount]*Image{images[0], images[1]}
-	err := LoadImages(imgs)
+
+	imgs := []*Image{images[0], images[1]}
+	err := LoadImages(imgs...)
 	if err != nil {
 		t.Error(err)
 	}
+}
 
-	imgs = [ImagesCount]*Image{images[2], images[1]}
-	err = LoadImages(imgs)
-	if err != nil {
-		if err != io.ErrUnexpectedEOF && err != io.EOF {
-			t.Error("File", images[2].Path,
-				"cannot be decoded, file is corrupted.")
+func TestLoadImages_Corrupted(t *testing.T) {
+	paths := []string{
+		"./res/kitten1.png",
+		"./res/corrupted.png",
+	}
+	images := []*Image{}
+
+	for _, p := range paths {
+		im, err := NewFromPath(p)
+		if err != nil && err != io.ErrUnexpectedEOF {
+			t.Error(err)
 		}
+		images = append(images, im)
+	}
+
+	imgs := []*Image{images[0], images[1]}
+	err := LoadImages(imgs...)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Image", paths[1], "has corrupted data")
+		t.Skip()
 	}
 }
 
@@ -187,12 +214,39 @@ func TestBytes(t *testing.T) {
 	}
 }
 
+func TestPosition(t *testing.T) {
+	img, err := NewFromPath("./res/kitten1.png")
+	if err != nil {
+		t.Error(nil)
+	}
+	res := img.Position(50, 50)
+	exp := 20200
+	if res != exp {
+		t.Errorf("Expecte %d got %d", exp, res)
+	}
+}
+
 func TestCompare_Empty(t *testing.T) {
 	imgEmpty1 := NewImage()
 	imgEmpty2 := NewImage()
 	px, err := imgEmpty1.Compare(imgEmpty2, nil)
 	if px != -1 && err != ErrImageIsEmpty {
-		t.Error("Images should be empty.")
+		t.Error("Images should be empty")
+	}
+}
+
+func TestCompare_Dimensions(t *testing.T) {
+	paths := []string{
+		"./res/kitten1.png",
+		"./res/kitten-small.png",
+	}
+	images := make([]*Image, len(paths))
+	for i, p := range paths {
+		images[i], _ = NewFromPath(p)
+	}
+	s, err := images[0].Compare(images[1], nil)
+	if err != nil && s != ExitDimensionsNotEqual {
+		t.Error(err)
 	}
 }
 
@@ -201,14 +255,12 @@ func TestCompare_Identical(t *testing.T) {
 		"./res/kitten1.png",
 		"./res/kitten1.png",
 	}
-	images := make([]*Image, 2)
+	images := make([]*Image, len(paths))
 	for i, p := range paths {
-		images[i] = NewImage()
-		images[i].SetPath(p)
-		images[i].Load()
+		images[i], _ = NewFromPath(p)
 	}
 	px, err := images[0].Compare(images[1], nil)
 	if px != 0 || err != nil {
-		t.Error("Images should be identical.")
+		t.Error("Images should be identical")
 	}
 }

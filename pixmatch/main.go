@@ -18,8 +18,8 @@ func main() {
 	img2 := pixmatch.NewImage()
 	img2.SetPath(f2)
 
-	images := [pixmatch.ImagesCount]*pixmatch.Image{img1, img2}
-	err := pixmatch.LoadImages(images)
+	images := []*pixmatch.Image{img1, img2}
+	err := pixmatch.LoadImages(images...)
 	if err != nil {
 		exitErr(pixmatch.ExitFSFail, err)
 	}

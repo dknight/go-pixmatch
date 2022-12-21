@@ -21,9 +21,6 @@ const (
 
 	// ImagesCount total images to compare probably won't ever change.
 	ImagesCount = 2
-
-	// pixOffset is bytes offset to get next color.
-	offset = 4
 )
 
 // Image represents the images structure.
@@ -41,39 +38,41 @@ func NewImage() *Image {
 	return &Image{}
 }
 
+// NewFromPath creates new images instance from the file system path.
+func NewFromPath(path string) (*Image, error) {
+	img := NewImage()
+	img.SetPath(path)
+	if err := img.Load(); err != nil {
+		return nil, err
+	}
+	return img, nil
+}
+
 // SetPath sets the path to the image in filesystem.
 func (img *Image) SetPath(path string) {
 	img.Path = path
 }
 
-// DimensionsEqual checks that dimensions of the image is equal to dimension
-// of other image.
-func (img *Image) DimensionsEqual(img2 *Image) (bool, error) {
-	if img.Bounds().Eq(img2.Bounds()) {
-		return true, nil
-	}
-	return false, ErrDimensionsDoNotMatch
-}
-
-// Empty checks that images is empty of has theoretical size 0x0 pixels.
-func (img *Image) Empty() bool {
-	if img.Image == nil {
-		return true
-	}
-	return img.Bounds().Empty()
-}
-
-// LoadImages loads multiple (2) images asynchronously.
-func LoadImages(images [ImagesCount]*Image) error {
+// LoadImages loads multiple images asynchronously.
+func LoadImages(images ...*Image) (err error) {
 	ch := make(chan error)
 	var wg sync.WaitGroup
-	wg.Add(ImagesCount)
+	wg.Add(len(images))
 
-	for i := 0; i < ImagesCount; i++ {
-		go func(i int) {
-			ch <- images[i].Load()
+	defer func() {
+		if r := recover(); r != nil {
+			err = r.(error)
+		}
+	}()
+
+	for _, im := range images {
+		if im == nil {
+			panic(ErrCorruptedImage)
+		}
+		go func(im *Image) {
+			ch <- im.Load()
 			wg.Done()
-		}(i)
+		}(im)
 	}
 
 	go func() {
@@ -81,10 +80,8 @@ func LoadImages(images [ImagesCount]*Image) error {
 		close(ch)
 	}()
 
-	for e := range ch {
-		if e != nil {
-			return e
-		}
+	for err := range ch {
+		return err
 	}
 
 	return nil
@@ -105,6 +102,24 @@ func (img *Image) Load() error {
 	return nil
 }
 
+// TODO: move to correct oreder of code.
+// DimensionsEqual checks that dimensions of the image is equal to dimension
+// of other image.
+func (img *Image) DimensionsEqual(img2 *Image) (bool, error) {
+	if img.Bounds().Eq(img2.Bounds()) {
+		return true, nil
+	}
+	return false, ErrDimensionsDoNotMatch
+}
+
+// Empty checks that images is empty of has theoretical size 0x0 pixels.
+func (img *Image) Empty() bool {
+	if img.Image == nil {
+		return true
+	}
+	return img.Bounds().Empty()
+}
+
 // Compare returns the number of different pixels.
 func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 	diff := 0
@@ -114,19 +129,25 @@ func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 
 	// If empty images return error.
 	if img.Empty() || img2.Empty() {
-		return -1, ErrImageIsEmpty
+		return ExitEmptyImage, ErrImageIsEmpty
+	}
+
+	// If dimensions do not match.
+	if _, err := img.DimensionsEqual(img2); err != nil {
+		return ExitDimensionsNotEqual, err
 	}
 
 	// If bytes are the same just return nothing to compare more.
 	if img.Identical(img2) {
-		// draw output
+		// NOTE draw output ???
 		return diff, nil
 	}
 	maxDelta := YIQDeltaMax * math.Pow(opts.Threshold, 2.0)
 
-	for y := 0; y <= img.Bounds().Dy(); y++ {
-		for x := 0; x <= img.Bounds().Dx(); x++ {
+	for y := 0; y < img.Bounds().Dy(); y++ {
+		for x := 0; x < img.Bounds().Dx(); x++ {
 			// TODO WORK
+			// pos := img.Position(x, y)
 			// fmt.Printf("(%d, %d),", x, y)
 		}
 	}
@@ -144,9 +165,7 @@ func (img *Image) Identical(img2 *Image) bool {
 	return bytes.Equal(img.Bytes(), img2.Bytes())
 }
 
-// Bytes get the raw bytes of the image.
-// NOTE Is there any better way to make this in better way?
-// TODO add JPEG support
+// Bytes get the raw bytes of the pixel data.
 func (img *Image) Bytes() []byte {
 	switch img.ColorModel() {
 	case color.RGBAModel:
@@ -165,6 +184,7 @@ func (img *Image) Bytes() []byte {
 		return img.Image.(*image.Gray).Pix
 	case color.Gray16Model:
 		return img.Image.(*image.Gray16).Pix
+		// TODO add JPEG support
 		// case color.NYCbCrAModel:
 		// 	return img.Image.(*image.NYCbCrA).Y
 		// case color.YCbCrModel:
@@ -176,5 +196,12 @@ func (img *Image) Bytes() []byte {
 		return img.Image.(*image.Paletted).Pix
 	}
 
+	// retrurn empty byte slice if something is really wrong with the image.
 	return []byte{}
+}
+
+// Position is the positions of the pixel in bytes data.
+// Eg. x1 is (r + 0), (g + 1), (b + 2), (a + 3), x2 = ...
+func (img *Image) Position(x, y int) int {
+	return (y*img.Bounds().Dx() + x) * 4
 }
