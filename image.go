@@ -8,9 +8,9 @@ import (
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
+	"io"
 	"math"
 	"os"
-	"sync"
 )
 
 const (
@@ -18,9 +18,6 @@ const (
 	// for the YIQ difference metric.
 	// Read about YIQ NTSC https://en.wikipedia.org/wiki/YIQ
 	YIQDeltaMax = 35215
-
-	// ImagesCount total images to compare probably won't ever change.
-	ImagesCount = 2
 )
 
 // Image represents the images structure.
@@ -38,11 +35,17 @@ func NewImage() *Image {
 	return &Image{}
 }
 
-// NewFromPath creates new images instance from the file system path.
-func NewFromPath(path string) (*Image, error) {
+// NewImageFromPath creates new images instance from the file system path.
+func NewImageFromPath(path string) (*Image, error) {
 	img := NewImage()
 	img.SetPath(path)
-	if err := img.Load(); err != nil {
+
+	fp, err := os.Open(img.Path)
+	if err != nil {
+		return nil, err
+	}
+	defer fp.Close()
+	if err := img.Load(fp); err != nil {
 		return nil, err
 	}
 	return img, nil
@@ -53,53 +56,13 @@ func (img *Image) SetPath(path string) {
 	img.Path = path
 }
 
-// LoadImages loads multiple images asynchronously.
-func LoadImages(images ...*Image) (err error) {
-	ch := make(chan error)
-	var wg sync.WaitGroup
-	wg.Add(len(images))
-
-	defer func() {
-		if r := recover(); r != nil {
-			err = r.(error)
-		}
-	}()
-
-	for _, im := range images {
-		if im == nil {
-			panic(ErrCorruptedImage)
-		}
-		go func(im *Image) {
-			ch <- im.Load()
-			wg.Done()
-		}(im)
-	}
-
-	go func() {
-		wg.Wait()
-		close(ch)
-	}()
-
-	for err := range ch {
-		return err
-	}
-
-	return nil
-}
-
-// Load loads image from the path of filesystem.
-func (img *Image) Load() error {
-	fp, err := os.Open(img.Path)
+// Load reads data from the reader.
+func (img *Image) Load(rd io.Reader) (err error) {
+	img.Image, img.Format, err = image.Decode(rd)
 	if err != nil {
-		return err
+		return
 	}
-	defer fp.Close()
-
-	img.Image, img.Format, err = image.Decode(fp)
-	if err != nil {
-		return err
-	}
-	return nil
+	return
 }
 
 // TODO: move to correct oreder of code.
