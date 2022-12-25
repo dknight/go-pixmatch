@@ -37,6 +37,11 @@ var defaultOptions = Options{
 	Output:       nil,
 }
 
+// NewOptions creates new Options instance.
+func NewOptions() *Options {
+	return &Options{}
+}
+
 // DefaultOptions creates new options.
 func DefaultOptions() *Options {
 	return &defaultOptions

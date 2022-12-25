@@ -3,10 +3,6 @@ package pixmatch
 import (
 	"bytes"
 	"image"
-
-	// _ "image/gif"
-	// _ "image/jpeg"
-	_ "image/png"
 	"io"
 	"math"
 	"os"
@@ -129,7 +125,13 @@ func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 					diff++
 				}
 			} else if opts.Output != nil {
-				// TODO draw output gray
+				if !opts.DiffMask {
+					c := img.At(x, y)
+					r, g, b, a := c.RGBA()
+					gray := NewColor(r, g, b, a).BlendToGray(opts.Alpha)
+					opts.Output.Image.Set(x, y, gray)
+
+				}
 			}
 		}
 	}
@@ -257,7 +259,7 @@ func (img *Image) ColorDelta(img2 *Image, m, n int, onlyY bool) float64 {
 
 // Antialiased checks that point is anti-aliased.
 // TODO use vector points? same as SameColorNeighbors
-// TODO not correctly?
+// FIXME not correctly?
 func (img *Image) Antialiased(img2 *Image, pt image.Point) bool {
 	neibrs := 0
 	x1 := intMax(pt.X-1, 0)
@@ -346,14 +348,4 @@ func (img *Image) SameColorNeighbors(pt image.Point) int {
 		}
 	}
 	return neibrs
-}
-
-// CreateOutput creates output image for given path in filesystem.
-func CreateOutput(path string, w, h int) (*image.RGBA, error) {
-	_, err := os.Create(path)
-	if err != nil {
-		return nil, err
-	}
-	img := image.NewRGBA(image.Rect(0, 0, w, h))
-	return img, nil
 }

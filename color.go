@@ -1,5 +1,11 @@
 package pixmatch
 
+import (
+	"fmt"
+	"image/color"
+	"math"
+)
+
 // GNumber is a simplier number interface to work with colors.
 // I really don't want to use golang.org/x/exp/constraints, because
 // it is too general. Here is enough.
@@ -25,24 +31,14 @@ func (c Color[T]) Equals(c2 *Color[T]) bool {
 }
 
 // RGBA implementation of color.Color interface but with generics.
-// NOTE will it work?
 func (c Color[T]) RGBA() (r, g, b, a T) {
 	return c.R, c.G, c.B, c.A
 }
 
 // YIQ converts RGB to YIQ color space. See wiki page
 // https://en.wikipedia.org/wiki/YIQ
-func (c Color[T]) YIQ() (y, i, q float64) {
+func (c Color[T]) YIQ() (float64, float64, float64) {
 	return c.Y(), c.I(), c.Q()
-}
-
-// Blend is for blending colors with alpha.
-func (c Color[T]) Blend(alpha T) *Color[T] {
-	r := 255.0 + (c.R-255.0)*alpha
-	g := 255.0 + (c.G-255.0)*alpha
-	b := 255.0 + (c.B-255.0)*alpha
-	a := alpha / 255.0
-	return NewColor[T](r, g, b, a) // uinfere?
 }
 
 // Y is Y component of YIQ color space.
@@ -66,10 +62,26 @@ func (c Color[T]) Q() float64 {
 		float64(c.B)*float64(0.31114694)
 }
 
-// func (c Color) String() string {
-// 	return fmt.Sprintf("rgba(%s, %s, %s, %s)", c.R, c.G, c.B, c.A)
-// }
+// Blend is for blending colors with alpha.
+func (c Color[T]) Blend(alpha T) *Color[T] {
+	r := 255.0 + (c.R-255.0)*alpha
+	g := 255.0 + (c.G-255.0)*alpha
+	b := 255.0 + (c.B-255.0)*alpha
+	a := alpha / 255.0
+	return NewColor[T](r, g, b, a)
+}
 
-// func (c Color) HexString() string {
-// 	return fmt.Sprintf("%x%x%x%x", c.R, c.G, c.B, c.A)
-// }
+// BlendToGray draws greyscaled color multiplied by alpha factor.
+func (c Color[T]) BlendToGray(a float64) color.Color {
+	gray := byte(math.Round(255.0 + (1.0-a)*c.Y()/255.0))
+	return color.RGBA{gray, gray, gray, 255}
+}
+
+func (c Color[T]) String() string {
+	return fmt.Sprintf("(%v,%v,%v,%v)", c.R, c.G, c.B, c.A)
+}
+
+// HexString converts to hexdemical string RRGGBBAA.
+func (c Color[T]) HexString() string {
+	return fmt.Sprintf("%02x%02x%02x%02x", c.R, c.G, c.B, c.A)
+}

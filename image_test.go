@@ -2,6 +2,8 @@ package pixmatch
 
 import (
 	"image"
+	_ "image/png"
+	"os"
 	"reflect"
 	"testing"
 )
@@ -17,7 +19,7 @@ func TestNewImage(t *testing.T) {
 }
 
 func TestNewFromPath(t *testing.T) {
-	want := "./res/kitten1.png"
+	want := "./res/kitten-a.png"
 	img, err := NewImageFromPath(want)
 	if err != nil {
 		t.Error(err)
@@ -28,7 +30,7 @@ func TestNewFromPath(t *testing.T) {
 }
 
 func TestNewFromPath_NotExists(t *testing.T) {
-	path := "./res/kitten3.png"
+	path := "./res/kitten-xxx.png"
 	_, err := NewImageFromPath(path)
 	if err == nil {
 		t.Error(err)
@@ -36,7 +38,7 @@ func TestNewFromPath_NotExists(t *testing.T) {
 }
 
 func TestImageSetPath(t *testing.T) {
-	want := "./res/kitten1.png"
+	want := "./res/kitten-a.png"
 	img := NewImage()
 	img.SetPath(want)
 	if want != img.Path {
@@ -45,7 +47,7 @@ func TestImageSetPath(t *testing.T) {
 }
 
 func TestImageLoad(t *testing.T) {
-	path := "./res/kitten1.png"
+	path := "./res/kitten-a.png"
 	_, err := NewImageFromPath(path)
 	if err != nil {
 		t.Error("File", path, "decoded incorrectly")
@@ -80,9 +82,9 @@ func TestImageEmpty(t *testing.T) {
 
 func TestDimensionsEqual(t *testing.T) {
 	paths := []string{
-		"./res/kitten1.png",
-		"./res/kitten2.png",
-		"./res/kitten-small.png",
+		"./res/kitten-a.png",
+		"./res/kitten-b.png",
+		"./res/kitten-c-small.png",
 	}
 	images := make([]*Image, 0, len(paths))
 
@@ -104,9 +106,9 @@ func TestDimensionsEqual(t *testing.T) {
 
 func TestIdentical(t *testing.T) {
 	paths := []string{
-		"./res/kitten1.png",
-		"./res/kitten2.png",
-		"./res/kitten1.png",
+		"./res/kitten-a.png",
+		"./res/kitten-b.png",
+		"./res/kitten-a.png",
 	}
 	images := make([]*Image, 0, len(paths))
 	for _, p := range paths {
@@ -153,7 +155,7 @@ func TestBytes(t *testing.T) {
 }
 
 func TestPosition(t *testing.T) {
-	img, err := NewImageFromPath("./res/kitten1.png")
+	img, err := NewImageFromPath("./res/kitten-a.png")
 	if err != nil {
 		t.Error(nil)
 	}
@@ -176,8 +178,8 @@ func TestCompare_Empty(t *testing.T) {
 
 func TestCompare_Dimensions(t *testing.T) {
 	paths := []string{
-		"./res/kitten1.png",
-		"./res/kitten-small.png",
+		"./res/kitten-a.png",
+		"./res/kitten-c-small.png",
 	}
 	images := make([]*Image, len(paths))
 	for i, p := range paths {
@@ -191,8 +193,8 @@ func TestCompare_Dimensions(t *testing.T) {
 
 func TestCompare_Identical(t *testing.T) {
 	paths := []string{
-		"./res/kitten1.png",
-		"./res/kitten1.png",
+		"./res/kitten-a.png",
+		"./res/kitten-a.png",
 	}
 	images := make([]*Image, len(paths))
 	for i, p := range paths {
@@ -206,8 +208,8 @@ func TestCompare_Identical(t *testing.T) {
 
 func TestImageColorDelta(t *testing.T) {
 	paths := []string{
-		"./res/kitten1.png",
-		"./res/kitten2.png",
+		"./res/kitten-a.png",
+		"./res/kitten-b.png",
 	}
 	images := make([]*Image, len(paths))
 	for i, p := range paths {
@@ -238,7 +240,7 @@ func TestImageColorDelta(t *testing.T) {
 }
 
 func TestSameColorNeighbors(t *testing.T) {
-	img, _ := NewImageFromPath("./res/kitten1.png")
+	img, _ := NewImageFromPath("./res/kitten-a.png")
 	pairs := map[image.Point]int{
 		image.Point{0, 99}:  4,
 		image.Point{7, 99}:  6,
@@ -258,7 +260,7 @@ func TestSameColorNeighbors(t *testing.T) {
 }
 
 func TestHasLeast3Neighbors(t *testing.T) {
-	img, _ := NewImageFromPath("./res/kitten1.png")
+	img, _ := NewImageFromPath("./res/kitten-a.png")
 	pairs := map[image.Point]bool{
 		image.Point{0, 99}:  true,
 		image.Point{3, 10}:  true,
@@ -274,7 +276,7 @@ func TestHasLeast3Neighbors(t *testing.T) {
 }
 
 func TestAntialiased(t *testing.T) {
-	img, _ := NewImageFromPath("./res/kitten1.png")
+	img, _ := NewImageFromPath("./res/kitten-a.png")
 	pairs := map[image.Point]bool{
 		image.Point{0, 0}:   false,
 		image.Point{17, 61}: false,
@@ -291,21 +293,25 @@ func TestAntialiased(t *testing.T) {
 
 func TestFullCompare(t *testing.T) {
 	paths := []string{
-		"./res/kitten1.png",
-		"./res/kitten2.png",
+		"./res/kitten-a.png",
+		"./res/kitten-b.png",
 	}
+	diffFileName := "diff.png"
 	images := make([]*Image, len(paths))
 	for i, p := range paths {
 		images[i], _ = NewImageFromPath(p)
 	}
 	opts := DefaultOptions()
-	output, err := NewOutput("diff.png",
+	output, err := NewOutput(diffFileName,
 		images[0].Bounds().Dx(), images[0].Bounds().Dy())
 	if err != nil {
 		t.Error(err)
 	}
+	defer os.Remove(diffFileName)
+
 	opts.Output = output
 	opts.DetectAA = true
+	opts.DiffMask = false
 	diff, err := images[0].Compare(images[1], opts)
 	if err != nil {
 		t.Error("Compare", err.Error())

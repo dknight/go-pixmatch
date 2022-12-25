@@ -51,3 +51,21 @@ func TestImageYQI(t *testing.T) {
 			wantY, wantI, wantQ, y, i, q)
 	}
 }
+
+func TestString(t *testing.T) {
+	color := NewColor[uint32](123, 233, 12, 42)
+	want := "(123,233,12,42)"
+	res := color.String()
+	if want != res {
+		t.Errorf("Expected %v got %v", want, res)
+	}
+}
+
+func TestHexString(t *testing.T) {
+	color := NewColor[uint32](123, 233, 12, 42)
+	want := "7be90c2a"
+	res := color.HexString()
+	if want != res {
+		t.Errorf("Expected %v got %v", want, res)
+	}
+}

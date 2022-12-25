@@ -3,7 +3,10 @@ package pixmatch
 import "testing"
 
 func BenchmarkIdentical(b *testing.B) {
-	paths := []string{"./res/kitten2.png", "./res/kitten2.png"}
+	paths := []string{
+		"./res/kitten-b.png",
+		"./res/kitten-b.png",
+	}
 	images := make([]*Image, 0, len(paths))
 	for _, p := range paths {
 		img, _ := NewImageFromPath(p)
