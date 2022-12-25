@@ -9,6 +9,7 @@ func BenchmarkCompare_Empty(b *testing.B) {
 		NewImage(),
 		NewImage(),
 	}
+	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
 		images[0].Compare(images[1], opts)
@@ -25,6 +26,7 @@ func BenchmarkCompare_Dimensions(b *testing.B) {
 		img, _ := NewImageFromPath(p)
 		images = append(images, img)
 	}
+	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
 		images[0].Compare(images[1], opts)
@@ -41,6 +43,7 @@ func BenchmarkCompare_Identical(b *testing.B) {
 		img, _ := NewImageFromPath(p)
 		images = append(images, img)
 	}
+	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
 		images[0].Compare(images[1], opts)
@@ -57,6 +60,7 @@ func BenchmarkCompare_Different(b *testing.B) {
 		img, _ := NewImageFromPath(p)
 		images = append(images, img)
 	}
+	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
 		images[0].Compare(images[1], opts)
