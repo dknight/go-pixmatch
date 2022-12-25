@@ -6,21 +6,21 @@ import (
 	"math"
 )
 
-// GNumber is a simplier number interface to work with colors.
+// ColorBits is a simplier number interface to work with colors.
 // I really don't want to use golang.org/x/exp/constraints, because
 // it is too general. Here is enough.
-type GNumber interface {
-	uint8 | uint16 | uint32 | float64
+type ColorBits interface {
+	uint8 | uint16 | uint32
 }
 
 // Color represnts colors struct it's components (R)ed, (G)reen, (B)lue,
 // (Alpha).
-type Color[T GNumber] struct {
+type Color[T ColorBits] struct {
 	R, G, B, A T
 }
 
 // NewColor create new color with certain type.
-func NewColor[T GNumber](r, g, b, a T) *Color[T] {
+func NewColor[T ColorBits](r, g, b, a T) *Color[T] {
 	return &Color[T]{r, g, b, a}
 }
 
