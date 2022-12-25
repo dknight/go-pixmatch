@@ -13,7 +13,10 @@ var (
 
 	// ErrCorruptedImage means that data fot the image is corrupted and
 	// cannot be decoded.
-	ErrCorruptedImage = errors.New("Image data is corrupted.")
+	ErrCorruptedImage = errors.New("Image data is corrupted")
+
+	// ErrCannotWriteOutputDiff means that output cannot be written.
+	ErrCannotWriteOutputDiff = errors.New("Cannot write diff output")
 )
 
 // Exit codes not defined in BSD and Linux

@@ -5,9 +5,10 @@ import (
 	"testing"
 )
 
-func TestNewOptions(t *testing.T) {
-	opts := NewOptions()
+func TestDefaultOptions(t *testing.T) {
+	opts := DefaultOptions()
+	want := defaultOptions
 	if !reflect.DeepEqual(*opts, defaultOptions) {
-		t.Errorf("Expected %+v got %+v", defaultOptions, *opts)
+		t.Errorf("Expected %+v got %+v", want, *opts)
 	}
 }

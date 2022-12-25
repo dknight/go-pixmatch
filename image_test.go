@@ -8,22 +8,22 @@ import (
 
 func TestNewImage(t *testing.T) {
 	img := NewImage()
-	exp := "*pixmatch.Image"
+	want := "*pixmatch.Image"
 	typ := reflect.TypeOf(img).String()
 
-	if typ != exp {
-		t.Error("Expected type", exp, "got", typ)
+	if typ != want {
+		t.Error("Expected type", want, "got", typ)
 	}
 }
 
 func TestNewFromPath(t *testing.T) {
-	path := "./res/kitten1.png"
-	img, err := NewImageFromPath(path)
+	want := "./res/kitten1.png"
+	img, err := NewImageFromPath(want)
 	if err != nil {
 		t.Error(err)
 	}
-	if path != img.Path {
-		t.Error("Expected", path, "got", img.Path)
+	if want != img.Path {
+		t.Error("Expected", want, "got", img.Path)
 	}
 }
 
@@ -36,11 +36,11 @@ func TestNewFromPath_NotExists(t *testing.T) {
 }
 
 func TestImageSetPath(t *testing.T) {
-	path := "./res/kitten1.png"
+	want := "./res/kitten1.png"
 	img := NewImage()
-	img.SetPath(path)
-	if path != img.Path {
-		t.Error("Expected", path, "got", img.Path)
+	img.SetPath(want)
+	if want != img.Path {
+		t.Error("Expected", want, "got", img.Path)
 	}
 }
 
@@ -91,13 +91,13 @@ func TestDimensionsEqual(t *testing.T) {
 		images = append(images, img)
 	}
 
-	exp, _ := images[0].DimensionsEqual(images[1])
-	if !exp {
-		t.Error("Expected", exp, "got", false)
+	want, _ := images[0].DimensionsEqual(images[1])
+	if !want {
+		t.Error("Expected", want, "got", false)
 	}
 
-	exp, err := images[0].DimensionsEqual(images[2])
-	if exp && err == ErrDimensionsDoNotMatch {
+	want, err := images[0].DimensionsEqual(images[2])
+	if want && err == ErrDimensionsDoNotMatch {
 		t.Error(ErrDimensionsDoNotMatch)
 	}
 }
@@ -114,16 +114,16 @@ func TestIdentical(t *testing.T) {
 		images = append(images, img)
 	}
 
-	exp := false
+	want := false
 	res := images[0].Identical(images[1])
 	if res {
-		t.Error("Expected", exp, "got", res)
+		t.Error("Expected", want, "got", res)
 	}
 
-	exp = true
+	want = true
 	res = images[0].Identical(images[2])
 	if !res {
-		t.Error("Expected", exp, "got", res)
+		t.Error("Expected", want, "got", res)
 	}
 }
 
@@ -157,10 +157,11 @@ func TestPosition(t *testing.T) {
 	if err != nil {
 		t.Error(nil)
 	}
-	res := img.Position(50, 50)
-	exp := 20200
-	if res != exp {
-		t.Errorf("Expecte %d got %d", exp, res)
+	point := image.Point{50, 50}
+	res := img.Position(point)
+	want := 20200
+	if res != want {
+		t.Errorf("Expecte %d got %d", want, res)
 	}
 }
 
@@ -200,5 +201,117 @@ func TestCompare_Identical(t *testing.T) {
 	px, err := images[0].Compare(images[1], nil)
 	if px != 0 || err != nil {
 		t.Error("Images should be identical")
+	}
+}
+
+func TestImageColorDelta(t *testing.T) {
+	paths := []string{
+		"./res/kitten1.png",
+		"./res/kitten2.png",
+	}
+	images := make([]*Image, len(paths))
+	for i, p := range paths {
+		images[i], _ = NewImageFromPath(p)
+	}
+
+	pairs := map[image.Point]float64{
+		image.Point{11, 58}: -6365.96249947337,
+		image.Point{50, 50}: 0,
+		image.Point{13, 16}: 15476.475726033921,
+	}
+
+	for pt, want := range pairs {
+		pos := images[0].Position(pt)
+		res := images[0].ColorDelta(images[1], pos, pos, false)
+		if res != want {
+			t.Errorf("Expected %v got %v", want, res)
+		}
+	}
+
+	// Only Y (brigthness) component.
+	pos := images[0].Position(image.Point{11, 58})
+	res := images[0].ColorDelta(images[1], pos, pos, true)
+	want := 111.97145726
+	if res != want {
+		t.Errorf("Expected %v got %v", want, res)
+	}
+}
+
+func TestSameColorNeighbors(t *testing.T) {
+	img, _ := NewImageFromPath("./res/kitten1.png")
+	pairs := map[image.Point]int{
+		image.Point{0, 99}:  4,
+		image.Point{7, 99}:  6,
+		image.Point{13, 72}: 4,
+		image.Point{17, 72}: 8,
+		image.Point{17, 76}: 3,
+		image.Point{3, 10}:  8, // alpha
+		image.Point{11, 14}: 0,
+	}
+
+	for pt, want := range pairs {
+		res := img.SameColorNeighbors(pt)
+		if res != want {
+			t.Errorf("Expected %v got %v", want, res)
+		}
+	}
+}
+
+func TestHasLeast3Neighbors(t *testing.T) {
+	img, _ := NewImageFromPath("./res/kitten1.png")
+	pairs := map[image.Point]bool{
+		image.Point{0, 99}:  true,
+		image.Point{3, 10}:  true,
+		image.Point{11, 14}: false,
+	}
+
+	for pt, want := range pairs {
+		res := img.HasLeast3Neighbors(pt)
+		if res != want {
+			t.Errorf("Expected %v got %v", want, res)
+		}
+	}
+}
+
+func TestAntialiased(t *testing.T) {
+	img, _ := NewImageFromPath("./res/kitten1.png")
+	pairs := map[image.Point]bool{
+		image.Point{0, 0}:   false,
+		image.Point{17, 61}: false,
+		// image.Point{7, 88}: true, // FIXME
+	}
+
+	for pt, want := range pairs {
+		res := img.Antialiased(img, pt)
+		if res != want {
+			t.Errorf("Expected %v got %v", want, res)
+		}
+	}
+}
+
+func TestFullCompare(t *testing.T) {
+	paths := []string{
+		"./res/kitten1.png",
+		"./res/kitten2.png",
+	}
+	images := make([]*Image, len(paths))
+	for i, p := range paths {
+		images[i], _ = NewImageFromPath(p)
+	}
+	opts := DefaultOptions()
+	output, err := NewOutput("diff.png",
+		images[0].Bounds().Dx(), images[0].Bounds().Dy())
+	if err != nil {
+		t.Error(err)
+	}
+	opts.Output = output
+	opts.DetectAA = true
+	diff, err := images[0].Compare(images[1], opts)
+	if err != nil {
+		t.Error("Compare", err.Error())
+	}
+	want := 2245
+	if want != diff {
+		t.Errorf("Expected %v got %v", want, diff)
 	}
 }
