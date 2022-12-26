@@ -80,8 +80,3 @@ func (c Color[T]) BlendToGray(a float64) color.Color {
 func (c Color[T]) String() string {
 	return fmt.Sprintf("(%v,%v,%v,%v)", c.R, c.G, c.B, c.A)
 }
-
-// HexString converts to hexdemical string RRGGBBAA.
-func (c Color[T]) HexString() string {
-	return fmt.Sprintf("%02x%02x%02x%02x", c.R, c.G, c.B, c.A)
-}
