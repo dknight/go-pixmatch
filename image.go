@@ -148,6 +148,11 @@ func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 // Looks like bytes.Equal() is the fastest way to compare 2 bytes arrays.
 // Tried reflect.DeepEqual() and loop solutions. In the most cases
 // bytes.Equal() is the best choice.
+//
+//	loops - the slowest
+//	reflect.DeepEqual() - slower
+//	bytes.Compare() - better
+//	bytes.Equal() - even better
 func (img *Image) Identical(img2 *Image) bool {
 	return bytes.Equal(img.Bytes(), img2.Bytes())
 }
@@ -157,7 +162,7 @@ func (img *Image) Identical(img2 *Image) bool {
 // TODO add JPEG support
 func (img *Image) Bytes() (bs []byte) {
 	if img == nil {
-		return bs
+		return
 	}
 	val := reflect.ValueOf(img.Image)
 	ptr := reflect.Indirect(val)
@@ -166,7 +171,7 @@ func (img *Image) Bytes() (bs []byte) {
 	if pixs.IsValid() {
 		bs = pixs.Bytes()
 	}
-	return bs
+	return
 
 	// -----
 	// If reflection is not enough clear use something like this or generics!

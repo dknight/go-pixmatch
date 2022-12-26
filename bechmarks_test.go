@@ -45,6 +45,7 @@ func BenchmarkCompare_Identical(b *testing.B) {
 	}
 	b.ResetTimer()
 
+	opts.DetectAA = false // change this
 	for i := 0; i < b.N; i++ {
 		images[0].Compare(images[1], opts)
 	}
