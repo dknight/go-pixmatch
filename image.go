@@ -224,8 +224,7 @@ func (img *Image) Stride() int {
 		return int(stride.Int())
 	}
 
-	// for jpeg (very dirty)
-	// FIXME better JPEG support
+	// for jpeg (NOTE it is very dirty)
 	strideY := ptr.FieldByName("YStride")
 	if strideY.IsValid() {
 		return int(strideY.Int())
@@ -314,7 +313,6 @@ func (img *Image) Uint32() []uint32 {
 }
 
 // Antialiased checks that point is anti-aliased.
-// TODO use vector points?
 func (img *Image) Antialiased(img2 *Image, pt image.Point) bool {
 	neibrs := 0
 	x1 := intMax(pt.X-1, 0)
@@ -368,7 +366,6 @@ func (img *Image) Antialiased(img2 *Image, pt image.Point) bool {
 
 // SameNeighbors hecks if a pixel has 3+ adjacent pixels of the
 // same color.
-// TODO use vector points?
 func (img *Image) SameNeighbors(pt image.Point, n int) bool {
 	neibrs := 0
 	x1 := intMax(pt.X-1, 0)

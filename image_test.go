@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-var removeDiffImages = true
+var removeDiffImages = false
 var opts = NewOptions()
 
 func TestNewImage(t *testing.T) {
@@ -134,7 +134,6 @@ func TestIdentical(t *testing.T) {
 	}
 }
 
-// TODO check Alpha, JPEG
 func TestBytes(t *testing.T) {
 	pairs := map[string]int{
 		"./res/models/nrgba.png":   16,
@@ -146,8 +145,8 @@ func TestBytes(t *testing.T) {
 		"./res/models/graya.png":   16,
 		"./res/models/graya32.png": 32,
 		"./res/models/palette.png": 4,
-		"./res/models/alpha.png":   16, //FIXME
-		"./res/models/alpha32.png": 16, //FIXME
+		"./res/models/alpha.png":   16,
+		"./res/models/alpha32.png": 16,
 		"./res/models/tt.jpg":      64,
 	}
 	for path, bits := range pairs {
@@ -285,7 +284,7 @@ func TestAntialiased(t *testing.T) {
 	pairs := map[image.Point]bool{
 		image.Point{0, 0}:   false,
 		image.Point{17, 61}: false,
-		// image.Point{7, 88}: true, // FIXME
+		image.Point{12, 88}: true,
 	}
 
 	for pt, want := range pairs {
@@ -312,14 +311,11 @@ func TestFullCompare_PNG(t *testing.T) {
 	for i, p := range paths {
 		images[i], _ = NewImageFromPath(p)
 	}
-	opts.DetectAA = false
 	output, err := NewOutput(diffFileName,
 		images[0].Width(), images[0].Height())
 	if err != nil {
 		t.Error(err)
 	}
-
-	// fmt.Printf("%+v\n", images[0].Image)
 
 	opts.Output = output
 	opts.DetectAA = false
