@@ -11,6 +11,7 @@ import (
 )
 
 var removeDiffImages = true
+var opts = NewOptions()
 
 func TestNewImage(t *testing.T) {
 	img := NewImage()
@@ -311,7 +312,6 @@ func TestFullCompare_PNG(t *testing.T) {
 	for i, p := range paths {
 		images[i], _ = NewImageFromPath(p)
 	}
-	opts := DefaultOptions()
 	opts.DetectAA = false
 	output, err := NewOutput(diffFileName,
 		images[0].Width(), images[0].Height())
@@ -350,7 +350,6 @@ func TestFullCompare_PNGAA(t *testing.T) {
 	for i, p := range paths {
 		images[i], _ = NewImageFromPath(p)
 	}
-	opts := DefaultOptions()
 	output, err := NewOutput(diffFileName,
 		images[0].Width(), images[0].Height())
 	if err != nil {
@@ -387,7 +386,6 @@ func TestFullCompare_GIF(t *testing.T) {
 		images[i], _ = NewImageFromPath(p)
 	}
 
-	opts := DefaultOptions()
 	opts.DetectAA = false
 	output, err := NewOutput(diffFileName,
 		images[0].Width(), images[0].Height())
@@ -410,7 +408,7 @@ func TestFullCompare_GIF(t *testing.T) {
 }
 
 func TestFullCompare_JPEG(t *testing.T) {
-	t.SkipNow()
+	// t.SkipNow()
 	diffFileName := "diff-forest.jpg"
 	t.Cleanup(func() {
 		if removeDiffImages {
@@ -425,7 +423,9 @@ func TestFullCompare_JPEG(t *testing.T) {
 	for i, p := range paths {
 		images[i], _ = NewImageFromPath(p)
 	}
-	opts := DefaultOptions()
+	opts.DetectAA = false
+	opts.Alpha = 1.0
+	// opts.Threshold = .5
 	output, err := NewOutput(diffFileName,
 		images[0].Width(), images[0].Height())
 	if err != nil {
@@ -438,7 +438,7 @@ func TestFullCompare_JPEG(t *testing.T) {
 	if err != nil {
 		t.Error("Compare", err.Error())
 	}
-	want := 502
+	want := 1782
 	if want != diff {
 		t.Errorf("Expected %v got %v", want, diff)
 	}

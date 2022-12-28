@@ -2,7 +2,7 @@ package pixmatch
 
 import "testing"
 
-var benchOpts = DefaultOptions()
+var benchOpts = NewOptions()
 
 func BenchmarkCompare_Empty(b *testing.B) {
 	images := []*Image{
@@ -79,9 +79,8 @@ func BenchmarkCompare_DifferentAA(b *testing.B) {
 	}
 	b.ResetTimer()
 
-	optsAA := DefaultOptions()
-	optsAA.DetectAA = true
+	benchOpts.DetectAA = true
 	for i := 0; i < b.N; i++ {
-		images[0].Compare(images[1], optsAA)
+		images[0].Compare(images[1], benchOpts)
 	}
 }

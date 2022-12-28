@@ -26,7 +26,7 @@ type Options struct {
 	Output *Output
 }
 
-var defaultOptions = &Options{
+var defaultOptions = Options{
 	Threshold:    0.1,
 	Alpha:        0.1,
 	DetectAA:     false,
@@ -39,12 +39,7 @@ var defaultOptions = &Options{
 
 // NewOptions creates new Options instance.
 func NewOptions() *Options {
-	return &Options{}
-}
-
-// DefaultOptions creates new options.
-func DefaultOptions() *Options {
-	return defaultOptions
+	return &defaultOptions
 }
 
 // ResolveDiffColor resolves the difference color or alternate difference

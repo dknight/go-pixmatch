@@ -6,23 +6,16 @@ import (
 	"testing"
 )
 
-func TestDefaultOptions(t *testing.T) {
-	opts := DefaultOptions()
-	want := defaultOptions
-	if !reflect.DeepEqual(*opts, *defaultOptions) {
-		t.Errorf("Expected %+v got %+v", *want, *opts)
-	}
-}
-
 func TestNewOptions(t *testing.T) {
 	opts := NewOptions()
-	if opts == nil {
-		t.Errorf("Cannot create options")
+	want := defaultOptions
+	if !reflect.DeepEqual(*opts, defaultOptions) {
+		t.Errorf("Expected %+v got %+v", want, opts)
 	}
 }
 
 func TestResolveDiffColor(t *testing.T) {
-	opts := DefaultOptions()
+	opts := NewOptions()
 	res := opts.ResolveDiffColor()
 	if opts.DiffColorAlt != nil {
 		t.Errorf("Expected %+v got %+v", nil, res)

@@ -76,7 +76,7 @@ func (img *Image) Load(rd io.Reader) (err error) {
 func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 	diff := 0
 	if opts == nil {
-		opts = DefaultOptions()
+		opts = NewOptions()
 	}
 	diffColor := opts.ResolveDiffColor()
 
@@ -199,8 +199,8 @@ func (img *Image) Bytes() []byte {
 	// case color.GrayModel:
 	// 	return img.Image.(*image.Gray).Pix
 	// case color.Gray16Model:
-	// -------------- JPEG ------------------
 	// 	return img.Image.(*image.Gray16).Pix
+	// -------------- JPEG ------------------
 	// 	// case color.NYCbCrAModel:
 	// 	// 	return img.Image.(*image.NYCbCrA).Y
 	// 	// case color.YCbCrModel:
@@ -213,8 +213,7 @@ func (img *Image) Bytes() []byte {
 	// }
 }
 
-// Stride get generic stride. Default retur value is zero, NOTE maybe
-// this isn't very correct.
+// Stride get generic stride. Default return value is zero.
 // Reflection is never clear (https://go-proverbs.github.io/)
 func (img *Image) Stride() int {
 	val := reflect.ValueOf(img.Image)
@@ -223,6 +222,13 @@ func (img *Image) Stride() int {
 	if stride.IsValid() {
 		// reflect.Value.Int() returns int64.
 		return int(stride.Int())
+	}
+
+	// for jpeg (very dirty)
+	// FIXME better JPEG support
+	strideY := ptr.FieldByName("YStride")
+	if strideY.IsValid() {
+		return int(strideY.Int())
 	}
 	return 0
 }
