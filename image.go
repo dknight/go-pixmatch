@@ -103,7 +103,7 @@ func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 
 	for y := 0; y < img.Height(); y++ {
 		for x := 0; x < img.Width(); x++ {
-			point := image.Point{x, y}
+			point := image.Pt(x, y)
 			pos := img.Position(point)
 			delta := img.ColorDelta(img2, pos, pos, false)
 
@@ -314,8 +314,7 @@ func (img *Image) Uint32() []uint32 {
 }
 
 // Antialiased checks that point is anti-aliased.
-// TODO use vector points? same as SameColorNeighbors
-// FIXME not correctly?
+// TODO use vector points?
 func (img *Image) Antialiased(img2 *Image, pt image.Point) bool {
 	neibrs := 0
 	x1 := intMax(pt.X-1, 0)
@@ -337,7 +336,7 @@ func (img *Image) Antialiased(img2 *Image, pt image.Point) bool {
 				continue
 			}
 
-			pos2 := img.Position(image.Point{x, y})
+			pos2 := img.Position(image.Pt(x, y))
 			delta := img.ColorDelta(img, pos, pos2, true)
 
 			if delta == 0 {
@@ -361,10 +360,10 @@ func (img *Image) Antialiased(img2 *Image, pt image.Point) bool {
 		return false
 	}
 
-	return (img.SameNeighbors(image.Point{minX, minY}, 3) &&
-		img2.SameNeighbors(image.Point{minX, minY}, 3)) ||
-		(img.SameNeighbors(image.Point{maxX, maxY}, 3) &&
-			img2.SameNeighbors(image.Point{maxX, maxY}, 3))
+	return (img.SameNeighbors(image.Pt(minX, minY), 3) &&
+		img2.SameNeighbors(image.Pt(minX, minY), 3)) ||
+		(img.SameNeighbors(image.Pt(maxX, maxY), 3) &&
+			img2.SameNeighbors(image.Pt(maxX, maxY), 3))
 }
 
 // SameNeighbors hecks if a pixel has 3+ adjacent pixels of the
@@ -389,7 +388,7 @@ func (img *Image) SameNeighbors(pt image.Point, n int) bool {
 				continue
 			}
 
-			pos2 := img.Position(image.Point{x, y})
+			pos2 := img.Position(image.Pt(x, y))
 			if bs[pos1+0] == bs[pos2+0] &&
 				bs[pos1+1] == bs[pos2+1] &&
 				bs[pos1+2] == bs[pos2+2] &&
