@@ -1,16 +1,20 @@
 #!/bin/sh
 
-N=5
+n=$2
+
+if [ -z $N ]; then
+    n=20
+fi
+
+if [ -z $1 ]; then
+    echo "No output filename given."
+    exit 1
+fi
 
 logdir="logs"
-logfile="$logdir/bench.log"
+logfile="$logdir/$1"
 
 mkdir -p "$logdir"
 : > "$logfile"
 
-for i in $( seq 1 $N ); do
-    printf "ITERATION %02d\n" $i
-    go test -run=NONE -bench=. -benchmem | tee -a "$logfile"
-done
-
-# go test -run=NONE -bench=. > new.txt
+go test -run='^$' -bench=. -count=$n > $logfile

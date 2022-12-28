@@ -7,8 +7,6 @@ import (
 )
 
 // ColorBits is a simplier number interface to work with colors.
-// I really don't want to use golang.org/x/exp/constraints, because
-// it is too general. Here is enough.
 type ColorBits interface {
 	uint8 | uint16 | uint32
 }
@@ -35,27 +33,27 @@ func (c Color[T]) RGBA() (r, g, b, a T) {
 	return c.R, c.G, c.B, c.A
 }
 
-// YIQ converts RGB to YIQ color space. See wiki page
+// YIQ converts RGB to YIQ color space. See wiki page about YIQ:
 // https://en.wikipedia.org/wiki/YIQ
 func (c Color[T]) YIQ() (float64, float64, float64) {
 	return c.Y(), c.I(), c.Q()
 }
 
-// Y is Y component of YIQ color space.
+// Y is RBG to Y (brightness) conversion.
 func (c Color[T]) Y() float64 {
 	return float64(c.R)*float64(0.29889531) +
 		float64(c.G)*float64(0.58662247) +
 		float64(c.B)*float64(0.11448223)
 }
 
-// I is I component of YIQ color space.
+// I is RBG to I (chrominance) conversion.
 func (c Color[T]) I() float64 {
 	return float64(c.R)*float64(0.59597799) -
 		float64(c.G)*float64(0.27417610) -
 		float64(c.B)*float64(0.32180189)
 }
 
-// Q is Q component of YIQ color space.
+// Q is RBG to Q (chrominance) conversion.
 func (c Color[T]) Q() float64 {
 	return float64(c.R)*float64(0.21147017) -
 		float64(c.G)*float64(0.52261711) +
@@ -63,17 +61,16 @@ func (c Color[T]) Q() float64 {
 }
 
 // Blend is for blending colors with alpha.
-func (c Color[T]) Blend(alpha T) *Color[T] {
-	r := 255.0 + (c.R-255.0)*alpha
-	g := 255.0 + (c.G-255.0)*alpha
-	b := 255.0 + (c.B-255.0)*alpha
-	a := alpha / 255.0
-	return NewColor[T](r, g, b, a)
+func (c Color[T]) Blend(alpha float64) *Color[T] {
+	r := 255.0 + (float64(c.R)-255.0)*alpha
+	g := 255.0 + (float64(c.G)-255.0)*alpha
+	b := 255.0 + (float64(c.B)-255.0)*alpha
+	return NewColor[T](T(r), T(g), T(b), T(alpha))
 }
 
 // BlendToGray draws greyscaled color multiplied by alpha factor.
-func (c Color[T]) BlendToGray(a float64) color.Color {
-	gray := byte(math.Round(255.0 + (1.0-a)*c.Y()/255.0))
+func (c Color[T]) BlendToGray(alpha float64) color.Color {
+	gray := byte(math.Round(255.0 - alpha*(float64(c.Y()-255.0))/255.0))
 	return color.RGBA{gray, gray, gray, 255}
 }
 

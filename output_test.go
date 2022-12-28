@@ -38,8 +38,18 @@ func TestSave(t *testing.T) {
 		t.Error(err)
 	}
 
-	err = out.Save()
+	err = out.Save("png")
 	if err != nil {
-		t.Errorf("Cannot save output")
+		t.Errorf("Cannot save PNG output")
+	}
+
+	err = out.Save("gif")
+	if err != nil {
+		t.Errorf("Cannot save GIF output")
+	}
+
+	err = out.Save("jpeg")
+	if err != nil {
+		t.Errorf("Cannot save JPEG output")
 	}
 }

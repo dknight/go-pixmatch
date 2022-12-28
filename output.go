@@ -1,7 +1,10 @@
 package pixmatch
 
 import (
+	"errors"
 	"image"
+	"image/gif"
+	"image/jpeg"
 	"image/png"
 	"io"
 	"os"
@@ -29,9 +32,16 @@ func NewOutput(path string, w, h int) (*Output, error) {
 }
 
 // Save writes data to output.
-func (out *Output) Save() error {
-	if err := png.Encode(out.Dest, out.Image); err != nil {
-		return err
+func (out *Output) Save(format string) (err error) {
+	switch format {
+	case "gif":
+		err = gif.Encode(out.Dest, out.Image, nil)
+	case "jpeg", "jpg":
+		err = jpeg.Encode(out.Dest, out.Image, nil)
+	case "png":
+		err = png.Encode(out.Dest, out.Image)
+	default:
+		err = errors.New("Unknown image format")
 	}
-	return nil
+	return err
 }

@@ -1,4 +1,6 @@
-Ask olga about her picture for demo.
-Print better errors maybe? --- which errors? ---
 Read and try to resolve issues in original pixel match.
 Make optimizations, more more and more...
+
+? Ask olga about her picture for demo.
+? Add JPEG support
++ Add GIF support
