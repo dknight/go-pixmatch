@@ -12,7 +12,7 @@ import (
 
 // Output represents the structure of output and its parameters.
 type Output struct {
-	// Dest is the writer where output will be written.
+	// Dest is the destination of writer where output will be written.
 	Dest io.Writer
 	// Image holds the image information.
 	Image *image.RGBA

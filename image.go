@@ -94,7 +94,7 @@ func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 	if img.Identical(img2) {
 		// NOTE
 		// We don't work to generate output image if it has no differences.
-		// but original pixelpatch js has it, maybe add later extra
+		// but original pixelmatch.js has it, maybe add later extra
 		// option for this.
 		return diff, nil
 	}
@@ -172,7 +172,7 @@ func (img *Image) Bytes() []byte {
 	if pixs.IsValid() {
 		return pixs.Bytes()
 	}
-	// For jpeg
+	// For JPEG
 	y := ptr.FieldByName("Y")
 	if y.IsValid() {
 		return y.Bytes()
@@ -224,7 +224,7 @@ func (img *Image) Stride() int {
 		return int(stride.Int())
 	}
 
-	// for jpeg (NOTE it is very dirty)
+	// for JPEG (NOTE it is very dirty)
 	strideY := ptr.FieldByName("YStride")
 	if strideY.IsValid() {
 		return int(strideY.Int())
@@ -251,7 +251,8 @@ func (img *Image) BytesPerColor() int {
 	case color.NRGBA64Model, color.RGBA64Model:
 		return 8
 	}
-	// By default return 1 is for paletted?
+	// NOTE is this OK?
+	// By default return 1 is for palette or YCbCr.
 	return 1
 }
 
@@ -364,7 +365,7 @@ func (img *Image) Antialiased(img2 *Image, pt image.Point) bool {
 			img2.SameNeighbors(image.Pt(maxX, maxY), 3))
 }
 
-// SameNeighbors hecks if a pixel has 3+ adjacent pixels of the
+// SameNeighbors checks if a pixel has 3+ adjacent pixels of the
 // same color.
 func (img *Image) SameNeighbors(pt image.Point, n int) bool {
 	neibrs := 0

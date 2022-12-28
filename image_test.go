@@ -10,7 +10,8 @@ import (
 	"testing"
 )
 
-var removeDiffImages = false
+// false is only for debugging purposes.
+var removeDiffImages = true
 var opts = NewOptions()
 
 func TestNewImage(t *testing.T) {

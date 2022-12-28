@@ -6,12 +6,12 @@ import (
 	"math"
 )
 
-// ColorBits is a simplier number interface to work with colors.
+// ColorBits is a simpler number interface to work with colors.
 type ColorBits interface {
 	uint8 | uint16 | uint32
 }
 
-// Color represnts colors struct it's components (R)ed, (G)reen, (B)lue,
+// Color represents colors struct it's components (R)ed, (G)reen, (B)lue,
 // (Alpha).
 type Color[T ColorBits] struct {
 	R, G, B, A T

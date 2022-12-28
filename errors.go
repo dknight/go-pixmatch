@@ -3,7 +3,7 @@ package pixmatch
 import "errors"
 
 var (
-	// ErrDimensionsDoNotMatch represents an error when images dimentions
+	// ErrDimensionsDoNotMatch represents an error when images dimensions
 	// aren't match.
 	ErrDimensionsDoNotMatch = errors.New("Images dimensions do not match")
 
@@ -11,7 +11,7 @@ var (
 	// empty.
 	ErrImageIsEmpty = errors.New("One or both images are empty")
 
-	// ErrCorruptedImage means that data fot the image is corrupted and
+	// ErrCorruptedImage means that data for the image is corrupted and
 	// cannot be decoded.
 	ErrCorruptedImage = errors.New("Image data is corrupted")
 
@@ -22,7 +22,7 @@ var (
 // Exit codes not defined in BSD and Linux
 // https://freedesktop.org/software/systemd/man/systemd.exec.html#id-1.20.8
 const (
-	// ExitOk then programm exited successfully.
+	// ExitOk then program exited successfully.
 	ExitOk = 0
 
 	// ExitFSFail exit status when something is wrong with file system.
@@ -31,6 +31,6 @@ const (
 	// ExitEmptyImage exit status when the images is empty.
 	ExitEmptyImage = 101
 
-	// ExitDimensionsNotEqual status when the images dimentions are not equal.
+	// ExitDimensionsNotEqual status when the images dimensions are not equal.
 	ExitDimensionsNotEqual = 102
 )
