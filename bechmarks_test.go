@@ -50,10 +50,44 @@ func BenchmarkCompare_Identical(b *testing.B) {
 	}
 }
 
-func BenchmarkCompare_Different(b *testing.B) {
+func BenchmarkCompare_Different_PNG(b *testing.B) {
 	paths := []string{
 		"./res/kitten-a.png",
 		"./res/kitten-b.png",
+	}
+	images := make([]*Image, 0, len(paths))
+	for _, p := range paths {
+		img, _ := NewImageFromPath(p)
+		images = append(images, img)
+	}
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		images[0].Compare(images[1], benchOpts)
+	}
+}
+
+func BenchmarkCompare_Different_GIF(b *testing.B) {
+	paths := []string{
+		"./res/abigail-a.gif",
+		"./res/abigail-b.gif",
+	}
+	images := make([]*Image, 0, len(paths))
+	for _, p := range paths {
+		img, _ := NewImageFromPath(p)
+		images = append(images, img)
+	}
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		images[0].Compare(images[1], benchOpts)
+	}
+}
+
+func BenchmarkCompare_Different_JPEG(b *testing.B) {
+	paths := []string{
+		"./res/forest-a.jpg",
+		"./res/forest-b.jpg",
 	}
 	images := make([]*Image, 0, len(paths))
 	for _, p := range paths {

@@ -17,4 +17,4 @@ logfile="$logdir/$1"
 mkdir -p "$logdir"
 : > "$logfile"
 
-go test -run='^$' -bench=. -count=$n > $logfile
+go test  -timeout 480m -run='^$' -bench=. -count=$n > $logfile

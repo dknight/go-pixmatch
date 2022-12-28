@@ -332,7 +332,7 @@ func TestFullCompare_PNG(t *testing.T) {
 }
 
 func TestFullCompare_PNGAA(t *testing.T) {
-	t.SkipNow()
+	// t.SkipNow()
 	diffFileName := "diff-aa.png"
 	t.Cleanup(func() {
 		if removeDiffImages {
