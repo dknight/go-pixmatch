@@ -268,6 +268,7 @@ func ColorDelta(pix1, pix2 []uint32, m, n int, bpc int, onlyY bool) float64 {
 	var color1 *Color
 	var color2 *Color
 
+	// TODO all cases please, 1,2,4,8
 	if bpc != 1 {
 		color1 = NewColor(pix1[m+0], pix1[m+1], pix1[m+2], pix1[m+3])
 		color2 = NewColor(pix2[n+0], pix2[n+1], pix2[n+2], pix2[n+3])
