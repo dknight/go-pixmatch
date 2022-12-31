@@ -21,8 +21,16 @@ const (
 type Image struct {
 	// Path to the image in filesystem.
 	Path string
+
 	// Format format as string like (png, jpg, gif).
 	Format string
+
+	// Pixel data contains data for colors.
+	PixData []uint32
+
+	// Rect is as cache for rectangle to avoid extra calculations.
+	Rect image.Rectangle
+
 	// Image embedded image from Go's standard library.
 	image.Image
 }
@@ -53,22 +61,17 @@ func (img *Image) SetPath(path string) {
 	img.Path = path
 }
 
-// Width is alias for Image.Bounds.Dx()
-func (img *Image) Width() int {
-	return img.Bounds().Dx()
-}
-
-// Height is alias for Image.Bounds.Dy()
-func (img *Image) Height() int {
-	return img.Bounds().Dy()
-}
-
 // Load reads data from the reader.
 func (img *Image) Load(rd io.Reader) (err error) {
 	img.Image, img.Format, err = image.Decode(rd)
 	if err != nil {
 		return
 	}
+
+	// Cache some stuff
+	img.PixData = img.Uint32()
+	img.Rect = img.Bounds()
+
 	return
 }
 
@@ -96,18 +99,17 @@ func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 	if opts == nil {
 		opts = NewOptions()
 	}
-	pix1, pix2 := img.Uint32(), img2.Uint32()
 
 	maxDelta := YIQDeltaMax * opts.Threshold * opts.Threshold
 	bpc := img.BytesPerColor()
 	diffColor := opts.ResolveDiffColor()
 	diff := 0
 
-	for y := 0; y < img.Height(); y++ {
-		for x := 0; x < img.Width(); x++ {
+	for y := img.Rect.Min.Y; y < img.Rect.Max.Y; y++ {
+		for x := img.Rect.Min.X; x < img.Rect.Max.X; x++ {
 			point := image.Pt(x, y)
 			pos := img.Position(point)
-			delta := ColorDelta(pix1, pix2, pos, pos, bpc, false)
+			delta := ColorDelta(img.PixData, img2.PixData, pos, pos, bpc, false)
 
 			if math.Abs(delta) > maxDelta {
 				if opts.DetectAA && (img.Antialiased(img2, point) || img2.Antialiased(img, point)) {
@@ -142,13 +144,13 @@ func (img *Image) Empty() bool {
 	if img.Image == nil {
 		return true
 	}
-	return img.Bounds().Empty()
+	return img.Rect.Empty()
 }
 
 // DimensionsEqual checks that dimensions of the image is equal to dimension
 // of other image.
 func (img *Image) DimensionsEqual(img2 *Image) bool {
-	return img.Bounds().Eq(img2.Bounds())
+	return img.Rect.Eq(img2.Rect)
 }
 
 // Identical checks images that these are identical on bytes level.
@@ -237,8 +239,8 @@ func (img *Image) Stride() int {
 // Position is the positions of the pixel in bytes data.
 // Eg. x1 is (r + 0), (g + 1), (b + 2), (a + 3), x2 = ...
 func (img *Image) Position(p image.Point) int {
-	return (p.Y-img.Bounds().Min.Y)*img.Stride() +
-		(p.X-img.Bounds().Min.X)*img.BytesPerColor()
+	return (p.Y-img.Rect.Min.Y)*img.Stride() +
+		(p.X-img.Rect.Min.X)*img.BytesPerColor()
 }
 
 // BytesPerColor resolves count of bytes per color.
@@ -316,10 +318,10 @@ func (img *Image) Uint32() []uint32 {
 // Antialiased checks that point is anti-aliased.
 func (img *Image) Antialiased(img2 *Image, pt image.Point) bool {
 	neibrs := 0
-	x1 := intMax(pt.X-1, 0)
-	y1 := intMax(pt.Y-1, 0)
-	x2 := intMin(pt.X+1, img.Width()-1)
-	y2 := intMin(pt.Y+1, img.Height()-1)
+	x1 := intMax(pt.X-1, img.Rect.Min.X)
+	y1 := intMax(pt.Y-1, img.Rect.Min.Y)
+	x2 := intMin(pt.X+1, img.Rect.Max.X-1)
+	y2 := intMin(pt.Y+1, img.Rect.Max.Y-1)
 	pos := img.Position(pt)
 
 	if pt.X == x1 || pt.X == x2 || pt.Y == y1 || pt.Y == y2 {
@@ -328,7 +330,6 @@ func (img *Image) Antialiased(img2 *Image, pt image.Point) bool {
 
 	min, max := 0.0, 0.0
 	minX, minY, maxX, maxY := 0, 0, 0, 0
-	pix := img.Uint32()
 	bpc := img.BytesPerColor()
 
 	for x := x1; x <= x2; x++ {
@@ -338,7 +339,8 @@ func (img *Image) Antialiased(img2 *Image, pt image.Point) bool {
 			}
 
 			pos2 := img.Position(image.Pt(x, y))
-			delta := ColorDelta(pix, pix, pos, pos2, bpc, true)
+			delta := ColorDelta(img.PixData, img.PixData,
+				pos, pos2, bpc, true)
 
 			if delta == 0 {
 				neibrs++
@@ -371,10 +373,10 @@ func (img *Image) Antialiased(img2 *Image, pt image.Point) bool {
 // same color.
 func (img *Image) SameNeighbors(pt image.Point, n int) bool {
 	neibrs := 0
-	x1 := intMax(pt.X-1, 0)
-	y1 := intMax(pt.Y-1, 0)
-	x2 := intMin(pt.X+1, img.Width()-1)
-	y2 := intMin(pt.Y+1, img.Height()-1)
+	x1 := intMax(pt.X-1, img.Rect.Min.X)
+	y1 := intMax(pt.Y-1, img.Rect.Min.Y)
+	x2 := intMin(pt.X+1, img.Rect.Max.X-1)
+	y2 := intMin(pt.Y+1, img.Rect.Max.Y-1)
 	pos1 := img.Position(pt)
 
 	if pt.X == x1 || pt.X == x2 || pt.Y == y1 || pt.Y == y2 {

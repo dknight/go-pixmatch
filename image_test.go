@@ -228,10 +228,10 @@ func TestColorDelta(t *testing.T) {
 	}
 
 	bpc := images[0].BytesPerColor()
-	pix1, pix2 := images[0].Uint32(), images[1].Uint32()
 	for pt, want := range pairs {
 		pos := images[0].Position(pt)
-		res := ColorDelta(pix1, pix2, pos, pos, bpc, false)
+		res := ColorDelta(images[0].PixData, images[1].PixData,
+			pos, pos, bpc, false)
 		if res != want {
 			t.Errorf("Expected %v got %v", want, res)
 		}
@@ -239,7 +239,7 @@ func TestColorDelta(t *testing.T) {
 
 	// Only Y (brigthness) component.
 	pos := images[0].Position(image.Point{11, 58})
-	res := ColorDelta(pix1, pix2, pos, pos, bpc, true)
+	res := ColorDelta(images[0].PixData, images[1].PixData, pos, pos, bpc, true)
 	want := 111.97145726
 	if res != want {
 		t.Errorf("Expected %v got %v", want, res)
@@ -315,7 +315,7 @@ func TestFullCompare_PNG(t *testing.T) {
 		images[i], _ = NewImageFromPath(p)
 	}
 	output, err := NewOutput(diffFileName,
-		images[0].Width(), images[0].Height())
+		images[0].Rect.Dx(), images[0].Rect.Dy())
 	if err != nil {
 		t.Error(err)
 	}
@@ -350,7 +350,7 @@ func TestFullCompare_PNGAA(t *testing.T) {
 		images[i], _ = NewImageFromPath(p)
 	}
 	output, err := NewOutput(diffFileName,
-		images[0].Width(), images[0].Height())
+		images[0].Rect.Dx(), images[0].Rect.Dy())
 	if err != nil {
 		t.Error(err)
 	}
@@ -387,7 +387,7 @@ func TestFullCompare_GIF(t *testing.T) {
 
 	opts.DetectAA = false
 	output, err := NewOutput(diffFileName,
-		images[0].Width(), images[0].Height())
+		images[0].Rect.Dx(), images[0].Rect.Dy())
 	if err != nil {
 		t.Error(err)
 	}
@@ -426,7 +426,7 @@ func TestFullCompare_JPEG(t *testing.T) {
 	opts.Alpha = 1.0
 	// opts.Threshold = .5
 	output, err := NewOutput(diffFileName,
-		images[0].Width(), images[0].Height())
+		images[0].Rect.Dx(), images[0].Rect.Dy())
 	if err != nil {
 		t.Error(err)
 	}
