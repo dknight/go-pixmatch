@@ -211,7 +211,7 @@ func TestCompare_Identical(t *testing.T) {
 	}
 }
 
-func TestImageColorDelta(t *testing.T) {
+func TestColorDelta(t *testing.T) {
 	paths := []string{
 		"./res/kitten-a.png",
 		"./res/kitten-b.png",
@@ -227,9 +227,11 @@ func TestImageColorDelta(t *testing.T) {
 		image.Point{13, 16}: 15476.475726033921,
 	}
 
+	bpc := images[0].BytesPerColor()
+	pix1, pix2 := images[0].Uint32(), images[1].Uint32()
 	for pt, want := range pairs {
 		pos := images[0].Position(pt)
-		res := images[0].ColorDelta(images[1], pos, pos, false)
+		res := ColorDelta(pix1, pix2, pos, pos, bpc, false)
 		if res != want {
 			t.Errorf("Expected %v got %v", want, res)
 		}
@@ -237,7 +239,7 @@ func TestImageColorDelta(t *testing.T) {
 
 	// Only Y (brigthness) component.
 	pos := images[0].Position(image.Point{11, 58})
-	res := images[0].ColorDelta(images[1], pos, pos, true)
+	res := ColorDelta(pix1, pix2, pos, pos, bpc, true)
 	want := 111.97145726
 	if res != want {
 		t.Errorf("Expected %v got %v", want, res)
@@ -421,7 +423,7 @@ func TestFullCompare_JPEG(t *testing.T) {
 		images[i], _ = NewImageFromPath(p)
 	}
 	opts.DetectAA = false
-	// opts.Alpha = 1.0
+	opts.Alpha = 1.0
 	// opts.Threshold = .5
 	output, err := NewOutput(diffFileName,
 		images[0].Width(), images[0].Height())

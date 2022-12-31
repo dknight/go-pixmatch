@@ -96,16 +96,18 @@ func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 	if opts == nil {
 		opts = NewOptions()
 	}
-	diffColor := opts.ResolveDiffColor()
-	diff := 0
+	pix1, pix2 := img.Uint32(), img2.Uint32()
 
 	maxDelta := YIQDeltaMax * opts.Threshold * opts.Threshold
+	bpc := img.BytesPerColor()
+	diffColor := opts.ResolveDiffColor()
+	diff := 0
 
 	for y := 0; y < img.Height(); y++ {
 		for x := 0; x < img.Width(); x++ {
 			point := image.Pt(x, y)
 			pos := img.Position(point)
-			delta := img.ColorDelta(img2, pos, pos, false)
+			delta := ColorDelta(pix1, pix2, pos, pos, bpc, false)
 
 			if math.Abs(delta) > maxDelta {
 				if opts.DetectAA && (img.Antialiased(img2, point) || img2.Antialiased(img, point)) {
@@ -260,17 +262,16 @@ func (img *Image) BytesPerColor() int {
 // position, returns negative if the img2 pixel is darker.
 // If argument onlyY is true, the only brightness level will be returned
 // (Y component of YIQ model).
-func (img *Image) ColorDelta(img2 *Image, m, n int, onlyY bool) float64 {
-	bs1, bs2 := img.Uint32(), img2.Uint32()
+func ColorDelta(pix1, pix2 []uint32, m, n int, bpc int, onlyY bool) float64 {
 	var color1 *Color[uint32]
 	var color2 *Color[uint32]
 
-	if img.BytesPerColor() != 1 {
-		color1 = NewColor(bs1[m+0], bs1[m+1], bs1[m+2], bs1[m+3])
-		color2 = NewColor(bs2[n+0], bs2[n+1], bs2[n+2], bs2[n+3])
+	if bpc != 1 {
+		color1 = NewColor(pix1[m+0], pix1[m+1], pix1[m+2], pix1[m+3])
+		color2 = NewColor(pix2[n+0], pix2[n+1], pix2[n+2], pix2[n+3])
 	} else {
-		color1 = NewColor(bs1[m+0], bs1[m+0], bs1[m+0], bs1[m+0])
-		color2 = NewColor(bs2[n+0], bs2[n+0], bs2[n+0], bs2[n+0])
+		color1 = NewColor(pix1[m+0], pix1[m+0], pix1[m+0], pix1[m+0])
+		color2 = NewColor(pix2[n+0], pix2[n+0], pix2[n+0], pix2[n+0])
 	}
 
 	// If all colors are the same then no delta.
@@ -327,6 +328,8 @@ func (img *Image) Antialiased(img2 *Image, pt image.Point) bool {
 
 	min, max := 0.0, 0.0
 	minX, minY, maxX, maxY := 0, 0, 0, 0
+	pix := img.Uint32()
+	bpc := img.BytesPerColor()
 
 	for x := x1; x <= x2; x++ {
 		for y := y1; y <= y2; y++ {
@@ -335,7 +338,7 @@ func (img *Image) Antialiased(img2 *Image, pt image.Point) bool {
 			}
 
 			pos2 := img.Position(image.Pt(x, y))
-			delta := img.ColorDelta(img, pos, pos2, true)
+			delta := ColorDelta(pix, pix, pos, pos2, bpc, true)
 
 			if delta == 0 {
 				neibrs++
