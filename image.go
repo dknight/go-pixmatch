@@ -74,19 +74,13 @@ func (img *Image) Load(rd io.Reader) (err error) {
 
 // Compare returns the number of different pixels.
 func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
-	diff := 0
-	if opts == nil {
-		opts = NewOptions()
-	}
-	diffColor := opts.ResolveDiffColor()
-
 	// If empty images return error.
 	if img.Empty() || img2.Empty() {
 		return ExitEmptyImage, ErrImageIsEmpty
 	}
 
 	// If dimensions do not match, return error.
-	if ok := img.DimensionsEqual(img2); !ok {
+	if !img.DimensionsEqual(img2) {
 		return ExitDimensionsNotEqual, ErrDimensionsDoNotMatch
 	}
 
@@ -96,10 +90,16 @@ func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 		// We don't work to generate output image if it has no differences.
 		// but original pixelmatch.js has it, maybe add later extra
 		// option for this.
-		return diff, nil
+		return 0, nil
 	}
 
-	maxDelta := YIQDeltaMax * math.Pow(opts.Threshold, 2.0)
+	if opts == nil {
+		opts = NewOptions()
+	}
+	diffColor := opts.ResolveDiffColor()
+	diff := 0
+
+	maxDelta := YIQDeltaMax * opts.Threshold * opts.Threshold
 
 	for y := 0; y < img.Height(); y++ {
 		for x := 0; x < img.Width(); x++ {
@@ -294,12 +294,11 @@ func (img *Image) ColorDelta(img2 *Image, m, n int, onlyY bool) float64 {
 
 	i := color1.I() - color2.I()
 	q := color1.Q() - color2.Q()
-	delta := 0.5053*y*y + 0.299*i*i + 0.1957*q*q // math.Pow(x, 2.0)
+	delta := 0.5053*y*y + 0.299*i*i + 0.1957*q*q
 
 	if y1 > y2 {
-		delta *= -1.0
+		return -delta
 	}
-
 	return delta
 }
 

@@ -11,7 +11,7 @@ import (
 )
 
 // false is only for debugging purposes.
-var removeDiffImages = true
+var removeDiffImages = false
 var opts = NewOptions()
 
 func TestNewImage(t *testing.T) {
@@ -154,7 +154,7 @@ func TestBytes(t *testing.T) {
 		img, _ := NewImageFromPath(path)
 		bs := img.Bytes()
 		if len(bs) != bits {
-			t.Errorf("Expected %v (%v bits) got %v", path, bits, len(bs))
+			t.Errorf("Expected %v (%vb) got %v", path, bits, len(bs))
 		}
 	}
 }
@@ -421,7 +421,7 @@ func TestFullCompare_JPEG(t *testing.T) {
 		images[i], _ = NewImageFromPath(p)
 	}
 	opts.DetectAA = false
-	opts.Alpha = 1.0
+	// opts.Alpha = 1.0
 	// opts.Threshold = .5
 	output, err := NewOutput(diffFileName,
 		images[0].Width(), images[0].Height())

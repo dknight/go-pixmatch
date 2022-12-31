@@ -50,7 +50,7 @@ func BenchmarkCompare_Identical(b *testing.B) {
 	}
 }
 
-func BenchmarkCompare_Different_PNG(b *testing.B) {
+func BenchmarkCompare_DifferentPNG(b *testing.B) {
 	paths := []string{
 		"./res/kitten-a.png",
 		"./res/kitten-b.png",
@@ -67,7 +67,7 @@ func BenchmarkCompare_Different_PNG(b *testing.B) {
 	}
 }
 
-func BenchmarkCompare_Different_GIF(b *testing.B) {
+func BenchmarkCompare_DifferentGIF(b *testing.B) {
 	paths := []string{
 		"./res/abigail-a.gif",
 		"./res/abigail-b.gif",
@@ -84,7 +84,7 @@ func BenchmarkCompare_Different_GIF(b *testing.B) {
 	}
 }
 
-func BenchmarkCompare_Different_JPEG(b *testing.B) {
+func BenchmarkCompare_DifferentJPEG(b *testing.B) {
 	paths := []string{
 		"./res/forest-a.jpg",
 		"./res/forest-b.jpg",
