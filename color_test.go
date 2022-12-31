@@ -6,8 +6,8 @@ import (
 )
 
 func TestNewColor(t *testing.T) {
-	c := NewColor[uint32](0, 0, 0, 0)
-	want := "*pixmatch.Color[uint32]"
+	c := NewColor(0, 0, 0, 0)
+	want := "*pixmatch.Color"
 	typ := reflect.TypeOf(c).String()
 
 	if typ != want {
@@ -16,7 +16,7 @@ func TestNewColor(t *testing.T) {
 }
 
 func TestColorRGBA(t *testing.T) {
-	c := NewColor[uint32](0, 255, 255, 0)
+	c := NewColor(0, 255, 255, 0)
 	r, g, b, a := c.RGBA()
 	want := []uint32{r, g, b, a}
 	if r != c.R || g != c.G || b != c.B || a != c.A {
@@ -25,9 +25,9 @@ func TestColorRGBA(t *testing.T) {
 }
 
 func TestColorEquals(t *testing.T) {
-	c1 := NewColor[uint32](0, 255, 255, 0)
-	c2 := NewColor[uint32](0, 255, 255, 0)
-	c3 := NewColor[uint32](0, 1, 244, 213)
+	c1 := NewColor(0, 255, 255, 0)
+	c2 := NewColor(0, 255, 255, 0)
+	c3 := NewColor(0, 1, 244, 213)
 
 	want := true
 	res := c1.Equals(c2)
@@ -43,7 +43,7 @@ func TestColorEquals(t *testing.T) {
 }
 
 func TestImageYQI(t *testing.T) {
-	color := NewColor[uint32](11, 22, 33, 44)
+	color := NewColor(11, 22, 33, 44)
 	y, i, q := color.YIQ()
 	wantY, wantI, wantQ := 19.97145634, -10.09557868, 1.0964444699999998
 	if y != wantY && i != wantI && q != wantQ {
@@ -53,7 +53,7 @@ func TestImageYQI(t *testing.T) {
 }
 
 func TestString(t *testing.T) {
-	color := NewColor[uint32](123, 233, 12, 42)
+	color := NewColor(123, 233, 12, 42)
 	want := "(123,233,12,42)"
 	res := color.String()
 	if want != res {

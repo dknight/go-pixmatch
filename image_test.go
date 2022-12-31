@@ -437,7 +437,7 @@ func TestFullCompare_JPEG(t *testing.T) {
 	if err != nil {
 		t.Error("Compare", err.Error())
 	}
-	want := 1782
+	want := 1841
 	if want != diff {
 		t.Errorf("Expected %v got %v", want, diff)
 	}

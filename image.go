@@ -263,8 +263,8 @@ func (img *Image) BytesPerColor() int {
 // If argument onlyY is true, the only brightness level will be returned
 // (Y component of YIQ model).
 func ColorDelta(pix1, pix2 []uint32, m, n int, bpc int, onlyY bool) float64 {
-	var color1 *Color[uint32]
-	var color2 *Color[uint32]
+	var color1 *Color
+	var color2 *Color
 
 	if bpc != 1 {
 		color1 = NewColor(pix1[m+0], pix1[m+1], pix1[m+2], pix1[m+3])
@@ -280,11 +280,11 @@ func ColorDelta(pix1, pix2 []uint32, m, n int, bpc int, onlyY bool) float64 {
 	}
 
 	if color1.A < 255 {
-		color1 = color1.Blend(float64(color1.A))
+		color1 = color1.Blend(color1.A)
 	}
 
 	if color2.A < 255 {
-		color2 = color2.Blend(float64(color2.A))
+		color2 = color2.Blend(color2.A)
 	}
 
 	y1, y2 := color1.Y(), color2.Y()
