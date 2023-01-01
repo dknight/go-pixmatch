@@ -1,7 +1,11 @@
 Read and try to resolve issues in original pixel match.
 Find good pictures for examples GIF JPG PNG
-
+Write docs
+Write examples
+Write README.md
+Make CLI
 Make optimizations, more more and more...
+
 + Write test pairs
 + Fixed Alpha blend doesnt' work correctly!
 + Fixed paletted colors.
