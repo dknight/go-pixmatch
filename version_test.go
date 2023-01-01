@@ -1,6 +1,9 @@
 package pixmatch
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestVersion(t *testing.T) {
 	v := Version{1, 0, 0, ""}
@@ -16,4 +19,11 @@ func TestVersion(t *testing.T) {
 	if want != res {
 		t.Errorf("Expected %v got %v", want, res)
 	}
+}
+
+func ExampleVersion() {
+	v := Version{0, 1, 5, "alpha"}
+	fmt.Println(v)
+	// Output:
+	// 0.1.5-alpha
 }
