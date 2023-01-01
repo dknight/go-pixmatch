@@ -253,7 +253,7 @@ func TestSameNeighbors(t *testing.T) {
 		image.Point{13, 72}: true,
 		image.Point{17, 72}: true,
 		image.Point{17, 76}: true,
-		image.Point{3, 10}:  true, // alpha
+		image.Point{3, 10}:  true,
 		image.Point{11, 14}: false,
 	}
 
@@ -297,324 +297,197 @@ func TestAntialiased(t *testing.T) {
 	}
 }
 
-func TestFullCompare_PNG(t *testing.T) {
-	// t.SkipNow()
-	diffFileName := "diff-cat.png"
-	t.Cleanup(func() {
-		if removeDiffImages {
-			os.Remove(diffFileName)
-		}
-	})
-	paths := []string{
-		"./res/kitten-a.png",
-		"./res/kitten-b.png",
-	}
-	images := make([]*Image, len(paths))
-	for i, p := range paths {
-		images[i], _ = NewImageFromPath(p)
-	}
-	output, err := NewOutput(diffFileName,
-		images[0].Rect.Dx(), images[0].Rect.Dy())
-	if err != nil {
-		t.Error(err)
-	}
+// -------------------------- PAIRS --------------------------------------
 
-	opts.Output = output
-	opts.DetectAA = false
-	// opts.DiffMask = false
-	diff, err := images[0].Compare(images[1], opts)
-	if err != nil {
-		t.Error("Compare", err.Error())
-	}
-	want := 2245
-	if want != diff {
-		t.Errorf("Expected %v got %v", want, diff)
-	}
+type testPair struct {
+	name         string
+	pathA        string
+	pathB        string
+	pathDiff     string
+	expectedDiff int
+	skip         bool
+	options      *Options
 }
 
-func TestFullCompare_PNGAA(t *testing.T) {
-	// t.SkipNow()
-	diffFileName := "diff-aa.png"
-	t.Cleanup(func() {
-		if removeDiffImages {
-			os.Remove(diffFileName)
-		}
-	})
-	paths := []string{
-		"./res/kitten-a.png",
-		"./res/kitten-b.png",
-	}
-	images := make([]*Image, len(paths))
-	for i, p := range paths {
-		images[i], _ = NewImageFromPath(p)
-	}
-	output, err := NewOutput(diffFileName,
-		images[0].Rect.Dx(), images[0].Rect.Dy())
-	if err != nil {
-		t.Error(err)
-	}
-
-	opts.Output = output
-	opts.DetectAA = true
-	// opts.DiffMask = false
-	diff, err := images[0].Compare(images[1], opts)
-	if err != nil {
-		t.Error("Compare", err.Error())
-	}
-	want := 1872
-	if want != diff {
-		t.Errorf("Expected %v got %v", want, diff)
-	}
+var testPairs = []testPair{
+	testPair{
+		name:         "PNG+GRAY8",
+		pathA:        "./res/gray8-a.png",
+		pathB:        "./res/gray8-b.png",
+		pathDiff:     "diff-gray8.png",
+		expectedDiff: 6,
+		skip:         false,
+		options:      NewOptions().SetIncludeAA(true),
+	},
+	testPair{
+		name:         "PNG+GRAY16",
+		pathA:        "./res/gray16-a.png",
+		pathB:        "./res/gray16-b.png",
+		pathDiff:     "diff-gray16.png",
+		expectedDiff: 15,
+		skip:         false,
+		options:      NewOptions().SetIncludeAA(true),
+	},
+	testPair{
+		name:         "PNG+Alpha",
+		pathA:        "./res/kitten-a.png",
+		pathB:        "./res/kitten-b.png",
+		pathDiff:     "diff-kitten.png",
+		expectedDiff: 1872,
+		skip:         false,
+		options:      NewOptions(),
+	},
+	testPair{
+		name:         "PNG+Alpha+Anti-aliasing",
+		pathA:        "./res/kitten-a.png",
+		pathB:        "./res/kitten-b.png",
+		pathDiff:     "diff-kitten-aa.png",
+		expectedDiff: 2245,
+		skip:         false,
+		options:      NewOptions().SetIncludeAA(true),
+	},
+	testPair{
+		name:         "GIF",
+		pathA:        "./res/abigail-a.gif",
+		pathB:        "./res/abigail-b.gif",
+		pathDiff:     "diff-abigail.gif",
+		expectedDiff: 114,
+		skip:         false,
+		options:      NewOptions().SetIncludeAA(true),
+	},
+	testPair{
+		name:         "JPEG",
+		pathA:        "./res/forest-a.jpg",
+		pathB:        "./res/forest-b.jpg",
+		pathDiff:     "diff-forest.jpg",
+		expectedDiff: 1782,
+		skip:         false,
+		options:      NewOptions().SetAlpha(.8),
+	},
+	testPair{
+		name:         "pixelmatch.js_100",
+		pathA:        "./res/original/1a.png",
+		pathB:        "./res/original/1b.png",
+		pathDiff:     "./res/original/1diff~.png",
+		expectedDiff: 143,
+		skip:         false,
+		options:      NewOptions().SetThreshold(.05),
+	},
+	testPair{
+		name:         "pixelmatch.js_101",
+		pathA:        "./res/original/1a.png",
+		pathB:        "./res/original/1b.png",
+		pathDiff:     "./res/original/1diffmask~.png",
+		expectedDiff: 143,
+		skip:         false,
+		options:      NewOptions().SetThreshold(.05).SetDiffMask(true),
+	},
+	testPair{
+		name:         "pixelmatch.js_102",
+		pathA:        "./res/original/1a.png",
+		pathB:        "./res/original/1b.png",
+		pathDiff:     "./res/original/1emptydiffmask~.png",
+		expectedDiff: 0,
+		skip:         false,
+		options:      NewOptions().SetThreshold(1).SetDiffMask(true),
+	},
+	testPair{
+		name:         "pixelmatch.js_200",
+		pathA:        "./res/original/2a.png",
+		pathB:        "./res/original/2b.png",
+		pathDiff:     "./res/original/2diff~.png",
+		expectedDiff: 12437,
+		skip:         false,
+		options:      NewOptions().SetThreshold(.05).SetAlpha(.5).SetAAColor(color.RGBA{0, 192, 0, 255}).SetDiffColor(color.RGBA{255, 0, 255, 255}),
+	},
+	testPair{
+		name:         "pixelmatch.js_300",
+		pathA:        "./res/original/3a.png",
+		pathB:        "./res/original/3b.png",
+		pathDiff:     "./res/original/3diff~.png",
+		expectedDiff: 212,
+		skip:         false,
+		options:      NewOptions().SetThreshold(.05),
+	},
+	testPair{
+		name:         "pixelmatch.js_400",
+		pathA:        "./res/original/4a.png",
+		pathB:        "./res/original/4b.png",
+		pathDiff:     "./res/original/4diff~.png",
+		expectedDiff: 36049,
+		skip:         false,
+		options:      NewOptions().SetThreshold(.05),
+	},
+	testPair{
+		name:         "pixelmatch.js_500",
+		pathA:        "./res/original/5a.png",
+		pathB:        "./res/original/5b.png",
+		pathDiff:     "./res/original/5diff~.png",
+		expectedDiff: 256,
+		skip:         false,
+		options:      NewOptions().SetThreshold(.05),
+	},
+	testPair{
+		name:         "pixelmatch.js_600",
+		pathA:        "./res/original/6a.png",
+		pathB:        "./res/original/6b.png",
+		pathDiff:     "./res/original/6diff~.png",
+		expectedDiff: 51,
+		skip:         false,
+		options:      NewOptions().SetThreshold(.05),
+	},
+	testPair{
+		name:         "pixelmatch.js_601",
+		pathA:        "./res/original/6a.png",
+		pathB:        "./res/original/6b.png",
+		pathDiff:     "./res/original/6empty~.png",
+		expectedDiff: 0,
+		skip:         false,
+		options:      NewOptions().SetThreshold(1.0),
+	},
+	testPair{
+		name:         "pixelmatch.js_700",
+		pathA:        "./res/original/7a.png",
+		pathB:        "./res/original/7b.png",
+		pathDiff:     "./res/original/7diff~.png",
+		expectedDiff: 2448,
+		skip:         false,
+		options:      NewOptions().SetDiffColorAlt(color.RGBA{0, 255, 0, 255}),
+	},
 }
 
-func TestFullCompare_GIF(t *testing.T) {
-	// t.SkipNow()
-	diffFileName := "diff-abi.gif"
-	t.Cleanup(func() {
-		if removeDiffImages {
-			os.Remove(diffFileName)
-		}
-	})
-	paths := []string{
-		"./res/abigail-a.gif",
-		"./res/abigail-b.gif",
-	}
-	images := make([]*Image, len(paths))
-	for i, p := range paths {
-		images[i], _ = NewImageFromPath(p)
-	}
-
-	output, err := NewOutput(diffFileName,
-		images[0].Rect.Dx(), images[0].Rect.Dy())
-	if err != nil {
-		t.Error(err)
-	}
-
-	opts.Output = output
-	// opts.DetectAA = false
-	// opts.DiffMask = true
-	// opts.Threshold = .5
-	diff, err := images[0].Compare(images[1], opts)
-	if err != nil {
-		t.Error("Compare", err.Error())
-	}
-	want := 95
-	if want != diff {
-		t.Errorf("Expected %v got %v", want, diff)
-	}
-}
-
-func TestFullCompare_JPEG(t *testing.T) {
-	// t.SkipNow()
-	diffFileName := "diff-forest.jpg"
-	t.Cleanup(func() {
-		if removeDiffImages {
-			os.Remove(diffFileName)
-		}
-	})
-	paths := []string{
-		"./res/forest-a.jpg",
-		"./res/forest-b.jpg",
-	}
-	images := make([]*Image, len(paths))
-	for i, p := range paths {
-		images[i], _ = NewImageFromPath(p)
-	}
-	opts.DetectAA = false
-	opts.Alpha = 1.0
-	// opts.Threshold = .5
-	output, err := NewOutput(diffFileName,
-		images[0].Rect.Dx(), images[0].Rect.Dy())
-	if err != nil {
-		t.Error(err)
-	}
-
-	opts.Output = output
-	opts.DetectAA = false
-	diff, err := images[0].Compare(images[1], opts)
-	if err != nil {
-		t.Error("Compare", err.Error())
-	}
-	want := 1782
-	if want != diff {
-		t.Errorf("Expected %v got %v", want, diff)
-	}
-}
-func TestFullCompare_1(t *testing.T) {
-	// t.SkipNow()
-	diffFileName := "./res/original/1diff~.png"
-	t.Cleanup(func() {
-		if removeDiffImages {
-			os.Remove(diffFileName)
-		}
-	})
-	paths := []string{
-		"./res/original/1a.png",
-		"./res/original/1b.png",
-	}
-	images := make([]*Image, len(paths))
-	for i, p := range paths {
-		images[i], _ = NewImageFromPath(p)
-	}
-	output, err := NewOutput(diffFileName,
-		images[0].Rect.Dx(), images[0].Rect.Dy())
-	if err != nil {
-		t.Error(err)
-	}
-
-	opts.Output = output
-	opts.Threshold = 0.05
-	opts.DetectAA = true
-	// opts.DiffMask = false
-	diff, err := images[0].Compare(images[1], opts)
-	if err != nil {
-		t.Error("Compare", err.Error())
-	}
-	want := 143
-	if want != diff {
-		t.Errorf("Expected %v got %v", want, diff)
-	}
-}
-
-func TestFullCompare_2(t *testing.T) {
-	// t.SkipNow()
-	diffFileName := "./res/original/2diff~.png"
-	t.Cleanup(func() {
-		if removeDiffImages {
-			os.Remove(diffFileName)
-		}
-	})
-	paths := []string{
-		"./res/original/2a.png",
-		"./res/original/2b.png",
-	}
-	images := make([]*Image, len(paths))
-	for i, p := range paths {
-		images[i], _ = NewImageFromPath(p)
-	}
-	output, err := NewOutput(diffFileName,
-		images[0].Rect.Dx(), images[0].Rect.Dy())
-	if err != nil {
-		t.Error(err)
-	}
-
-	opts.Output = output
-	opts.Threshold = 0.05
-	opts.Alpha = 0.5
-	opts.AAColor = color.RGBA{0, 192, 0, 255}
-	opts.DiffColor = color.RGBA{255, 0, 255, 255}
-	// opts.DiffMask = false
-	diff, err := images[0].Compare(images[1], opts)
-	if err != nil {
-		t.Error("Compare", err.Error())
-	}
-	want := 12437
-	if want != diff {
-		t.Errorf("Expected %v got %v", want, diff)
-	}
-}
-func TestFullCompare_4(t *testing.T) {
-	// t.SkipNow()
-	diffFileName := "./res/original/4diff~.png"
-	t.Cleanup(func() {
-		if removeDiffImages {
-			os.Remove(diffFileName)
-		}
-	})
-	paths := []string{
-		"./res/original/4a.png",
-		"./res/original/4b.png",
-	}
-	images := make([]*Image, len(paths))
-	for i, p := range paths {
-		images[i], _ = NewImageFromPath(p)
-	}
-	output, err := NewOutput(diffFileName,
-		images[0].Rect.Dx(), images[0].Rect.Dy())
-	if err != nil {
-		t.Error(err)
-	}
-
-	opts.Output = output
-	opts.Threshold = 0.05
-	diff, err := images[0].Compare(images[1], opts)
-	if err != nil {
-		t.Error("Compare", err.Error())
-	}
-	want := 36049
-	if want != diff {
-		t.Errorf("Expected %v got %v", want, diff)
-	}
-}
-
-func TestFullCompare_5(t *testing.T) {
-	// t.SkipNow()
-	diffFileName := "./res/original/5diff~.png"
-	t.Cleanup(func() {
-		if removeDiffImages {
-			os.Remove(diffFileName)
-		}
-	})
-	paths := []string{
-		"./res/original/5a.png",
-		"./res/original/5b.png",
-	}
-	images := make([]*Image, len(paths))
-	for i, p := range paths {
-		images[i], _ = NewImageFromPath(p)
-	}
-	output, err := NewOutput(diffFileName,
-		images[0].Rect.Dx(), images[0].Rect.Dy())
-	if err != nil {
-		t.Error(err)
-	}
-
-	opts.Output = output
-	opts.Threshold = 0.05
-	opts.DetectAA = true
-	// opts.DiffMask = false
-	diff, err := images[0].Compare(images[1], opts)
-	if err != nil {
-		t.Error("Compare", err.Error())
-	}
-	want := 256
-	if want != diff {
-		t.Errorf("Expected %v got %v", want, diff)
-	}
-}
-
-func TestFullCompare_6(t *testing.T) {
-	// t.SkipNow()
-	diffFileName := "./res/original/6diff~.png"
-	t.Cleanup(func() {
-		if removeDiffImages {
-			os.Remove(diffFileName)
-		}
-	})
-	paths := []string{
-		"./res/original/6a.png",
-		"./res/original/6b.png",
-	}
-	images := make([]*Image, len(paths))
-	for i, p := range paths {
-		images[i], _ = NewImageFromPath(p)
-	}
-	output, err := NewOutput(diffFileName,
-		images[0].Rect.Dx(), images[0].Rect.Dy())
-	if err != nil {
-		t.Error(err)
-	}
-
-	opts.Output = output
-	opts.Threshold = 0.05
-	opts.DetectAA = true
-	// opts.DiffMask = false
-	diff, err := images[0].Compare(images[1], opts)
-	if err != nil {
-		t.Error("Compare", err.Error())
-	}
-	want := 51
-	if want != diff {
-		t.Errorf("Expected %v got %v", want, diff)
+func TestImageCompare(t *testing.T) {
+	for _, pair := range testPairs {
+		t.Run(pair.name, func(t *testing.T) {
+			if pair.skip {
+				t.SkipNow()
+			}
+			t.Cleanup(func() {
+				if removeDiffImages {
+					os.Remove(pair.pathDiff)
+				}
+			})
+			imageA, err := NewImageFromPath(pair.pathA)
+			if err != nil {
+				t.Error(err)
+			}
+			imageB, err := NewImageFromPath(pair.pathB)
+			if err != nil {
+				t.Error(err)
+			}
+			output, err := NewOutput(pair.pathDiff,
+				imageA.Rect.Dx(), imageB.Rect.Dy())
+			if err != nil {
+				t.Error(err)
+			}
+			pair.options.SetOutput(output)
+			diff, err := imageA.Compare(imageB, pair.options)
+			if err != nil {
+				t.Error("Compare", err.Error())
+			}
+			if diff != pair.expectedDiff {
+				t.Errorf("Expected %v got %v", pair.expectedDiff, diff)
+			}
+		})
 	}
 }

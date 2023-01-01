@@ -17,3 +17,4 @@
 *.work
 logs
 diff-*
+**/*~.png

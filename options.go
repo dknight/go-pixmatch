@@ -11,14 +11,15 @@ type Options struct {
 	Threshold float64
 	// Alpha is alpha channel factor.
 	Alpha float64
-	// DetectAA determines if comparison should take in to account
-	// anti-aliasing.
-	DetectAA bool
+	// IncludeAA determines anti-aliasing pixels as difference count.
+	IncludeAA bool
 	// AAColor is the color to mark anti-aliasing.
 	AAColor color.Color
 	// DiffColor is the color to mark the difference.
 	DiffColor color.Color
-	// DiffColorAlt is the alternative difference color.
+	// DiffColorAlt is the alternative difference color. Used whether
+	// to detect dark on light differences between two images and set
+	// an alternative color.
 	DiffColorAlt color.Color
 	// DiffMask set to use mask.
 	DiffMask bool
@@ -26,10 +27,11 @@ type Options struct {
 	Output *Output
 }
 
+// defaultOptions are just default options.
 var defaultOptions = Options{
 	Threshold:    0.1,
 	Alpha:        0.1,
-	DetectAA:     false,
+	IncludeAA:    false,
 	AAColor:      color.RGBA{255, 255, 0, 255},
 	DiffColor:    color.RGBA{255, 0, 0, 255},
 	DiffColorAlt: nil,
@@ -38,13 +40,13 @@ var defaultOptions = Options{
 }
 
 // NewOptions creates new Options instance. Here possible to use
-// https://github.com/imdario/mergo, but I always try to avoid dependcies
+// https://github.com/imdario/mergo, but I always try to avoid dependencies
 // where possible.
 func NewOptions() *Options {
 	return &Options{
 		Threshold:    defaultOptions.Threshold,
 		Alpha:        defaultOptions.Alpha,
-		DetectAA:     defaultOptions.DetectAA,
+		IncludeAA:    defaultOptions.IncludeAA,
 		AAColor:      defaultOptions.AAColor,
 		DiffColor:    defaultOptions.DiffColor,
 		DiffColorAlt: defaultOptions.DiffColorAlt,
@@ -53,11 +55,51 @@ func NewOptions() *Options {
 	}
 }
 
-// ResolveDiffColor resolves the difference color or alternate difference
-// color.
-func (opts *Options) ResolveDiffColor() color.Color {
-	if c := opts.DiffColorAlt; c != nil {
-		return c
-	}
-	return opts.DiffColor
+// SetThreshold sets threshold to options.
+func (opts *Options) SetThreshold(v float64) *Options {
+	opts.Threshold = v
+	return opts
+}
+
+// SetAlpha sets alpha to options.
+func (opts *Options) SetAlpha(v float64) *Options {
+	opts.Alpha = v
+	return opts
+}
+
+// SetIncludeAA sets anti-aliasing to options to counts anti-aliased
+// pixels as difference.
+func (opts *Options) SetIncludeAA(v bool) *Options {
+	opts.IncludeAA = v
+	return opts
+}
+
+// SetAAColor sets anti-aliased color to options.
+func (opts *Options) SetAAColor(v color.Color) *Options {
+	opts.AAColor = v
+	return opts
+}
+
+// SetDiffColor sets color of difference.
+func (opts *Options) SetDiffColor(v color.Color) *Options {
+	opts.DiffColor = v
+	return opts
+}
+
+// SetDiffColor sets color of alternative difference.
+func (opts *Options) SetDiffColorAlt(v color.Color) *Options {
+	opts.DiffColorAlt = v
+	return opts
+}
+
+// SetDiffMask sets difference mask to options.
+func (opts *Options) SetDiffMask(v bool) *Options {
+	opts.DiffMask = v
+	return opts
+}
+
+// SetOutput sets the output as pointer to options.
+func (opts *Options) SetOutput(v *Output) *Options {
+	opts.Output = v
+	return opts
 }

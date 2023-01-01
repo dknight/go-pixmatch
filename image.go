@@ -101,7 +101,6 @@ func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 	}
 
 	maxDelta := YIQDeltaMax * opts.Threshold * opts.Threshold
-	diffColor := opts.ResolveDiffColor()
 	diff := 0
 
 	var wg sync.WaitGroup
@@ -115,22 +114,28 @@ func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 				delta := img.ColorDelta(img2, pos, pos, false)
 
 				if math.Abs(delta) > maxDelta {
-					if opts.DetectAA && (img.Antialiased(img2, point) || img2.Antialiased(img, point)) {
+					if !opts.IncludeAA && (img.Antialiased(img2, point) || img2.Antialiased(img, point)) {
 						if opts.Output != nil && !opts.DiffMask {
 							opts.Output.Image.Set(x, y, opts.AAColor)
 						}
 					} else {
 						if opts.Output != nil {
+							diffColor := opts.DiffColor
+							if delta < 0 && opts.DiffColorAlt != nil {
+								diffColor = opts.DiffColorAlt
+							}
 							opts.Output.Image.Set(x, y, diffColor)
 						}
 						mu.Lock()
 						diff++
 						mu.Unlock()
 					}
-				} else if opts.Output != nil && !opts.DiffMask {
-					r, g, b, a := img.At(x, y).RGBA()
-					gray := NewColor(r, g, b, a).BlendToGray(opts.Alpha)
-					opts.Output.Image.Set(x, y, gray)
+				} else if opts.Output != nil {
+					if !opts.DiffMask {
+						r, g, b, a := img.At(x, y).RGBA()
+						gray := NewColor(r, g, b, a).BlendToGray(opts.Alpha)
+						opts.Output.Image.Set(x, y, gray)
+					}
 				}
 			}
 			wg.Done()
@@ -167,10 +172,10 @@ func (img *Image) DimensionsEqual(img2 *Image) bool {
 // Tried reflect.DeepEqual() and loop solutions. In the most cases
 // bytes.Equal() is the best choice.
 //
-//	loops - the slowest
-//	reflect.DeepEqual() - slower
-//	bytes.Compare() - better
-//	bytes.Equal() - even better
+// * loops - the slowest
+// * reflect.DeepEqual() - slower
+// * bytes.Compare() - better
+// * bytes.Equal() - even better
 func (img *Image) Identical(img2 *Image) bool {
 	return bytes.Equal(img.Bytes(), img2.Bytes())
 }
@@ -248,29 +253,32 @@ func (img *Image) BytesPerColor() int {
 // (Y component of YIQ model).
 func (img *Image) ColorDelta(img2 *Image, m, n int, onlyY bool) float64 {
 	bpc := img.BytesPerColor()
+	px1 := img.PixData
+	px2 := img2.PixData
 	var r1, g1, b1, a1 uint32
 	var r2, g2, b2, a2 uint32
+
 	switch bpc {
 	case 1:
-		r1, g1, b1, a1 = img.PixData[m], img.PixData[m], img.PixData[m], img.PixData[m]
-		r2, g2, b2, a2 = img2.PixData[n], img2.PixData[n], img2.PixData[n], img2.PixData[n]
+		r1, g1, b1, a1 = px1[m], px1[m], px1[m], px1[m]
+		r2, g2, b2, a2 = px2[n], px2[n], px2[n], px2[n]
 	case 2:
-		r1, g1, b1, a1 = img.PixData[m], img.PixData[m], img.PixData[m], img.PixData[m+1]
-		r2, g2, b2, a2 = img2.PixData[n], img2.PixData[n], img2.PixData[n], img2.PixData[n+1]
+		r1, g1, b1, a1 = px1[m], px1[m], px1[m], px1[m+1]
+		r2, g2, b2, a2 = px2[n], px2[n], px2[n], px2[n+1]
 	case 4:
-		r1, g1, b1, a1 = img.PixData[m], img.PixData[m+1], img.PixData[m+2], img.PixData[m+3]
-		r2, g2, b2, a2 = img2.PixData[n], img2.PixData[n+1], img2.PixData[n+2], img2.PixData[n+3]
+		r1, g1, b1, a1 = px1[m], px1[m+1], px1[m+2], px1[m+3]
+		r2, g2, b2, a2 = px2[n], px2[n+1], px2[n+2], px2[n+3]
 	case 8: // NOTE not sure about this
-		r1, r2 = img.PixData[0]<<8|img.PixData[1], img2.PixData[0]<<8|img2.PixData[1]
-		g1, g2 = img.PixData[2]<<8|img.PixData[3], img2.PixData[2]<<8|img2.PixData[3]
-		b1, b2 = img.PixData[4]<<8|img.PixData[5], img2.PixData[4]<<8|img2.PixData[5]
-		a1, a2 = img.PixData[6]<<8|img.PixData[7], img2.PixData[6]<<8|img2.PixData[7]
+		r1, r2 = px1[0]<<8|px1[1], px2[0]<<8|px2[1]
+		g1, g2 = px1[2]<<8|px1[3], px2[2]<<8|px2[3]
+		b1, b2 = px1[4]<<8|px1[5], px2[4]<<8|px2[5]
+		a1, a2 = px1[6]<<8|px1[7], px2[6]<<8|px2[7]
 	}
 
 	switch img.Image.(type) {
 	case *image.Paletted:
-		x := img.PixData[m]
-		y := img2.PixData[n]
+		x := px1[m]
+		y := px2[n]
 		palette1 := img.Image.(*image.Paletted).Palette
 		palette2 := img2.Image.(*image.Paletted).Palette
 		r1, g1, b1, a1 = palette1[x].RGBA()
@@ -300,11 +308,11 @@ func (img *Image) ColorDelta(img2 *Image, m, n int, onlyY bool) float64 {
 	}
 
 	if color1.A < 255 {
-		color1 = color1.Blend(color1.A)
+		color1 = color1.Blend(float64(color1.A))
 	}
 
 	if color2.A < 255 {
-		color2 = color2.Blend(color2.A)
+		color2 = color2.Blend(float64(color2.A))
 	}
 
 	y1, y2 := color1.Y(), color2.Y()

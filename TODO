@@ -1,9 +1,9 @@
 Read and try to resolve issues in original pixel match.
 Find good pictures for examples GIF JPG PNG
-Alpha blend doesnt' work correctly!
-Write test pairs
-Make optimizations, more more and more...
 
+Make optimizations, more more and more...
++ Write test pairs
++ Fixed Alpha blend doesnt' work correctly!
 + Fixed paletted colors.
 + Add partial (dirty) JPEG support
 + Add GIF support

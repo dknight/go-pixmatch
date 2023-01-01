@@ -113,7 +113,7 @@ func BenchmarkCompare_DifferentAA(b *testing.B) {
 	}
 	b.ResetTimer()
 
-	benchOpts.DetectAA = true
+	benchOpts.IncludeAA = true
 	for i := 0; i < b.N; i++ {
 		images[0].Compare(images[1], benchOpts)
 	}

@@ -3,7 +3,6 @@ package pixmatch
 import (
 	"fmt"
 	"image/color"
-	"math"
 )
 
 // Color represents colors struct it's components (R)ed, (G)reen, (B)lue,
@@ -56,16 +55,20 @@ func (c Color) Q() float64 {
 }
 
 // Blend is for blending colors with alpha.
-func (c Color) Blend(alpha uint32) *Color {
-	r := 255 + (c.R-255)*alpha
-	g := 255 + (c.G-255)*alpha
-	b := 255 + (c.B-255)*alpha
-	return NewColor(r, g, b, alpha)
+func (c Color) Blend(a float64) *Color {
+	r := 255 + float64(c.R-255)*(a)
+	g := 255 + float64(c.G-255)*(a)
+	b := 255 + float64(c.B-255)*(a)
+	return NewColor(uint32(r), uint32(g), uint32(b), c.A)
 }
 
 // BlendToGray draws greyscaled color multiplied by alpha factor.
-func (c Color) BlendToGray(alpha float64) color.Color {
-	gray := uint8(math.Round(255.0 - alpha*(c.Y()-255.0)/255.0))
+func (c Color) BlendToGray(a float64) color.Color {
+	y := uint32(c.Y()) >> 8
+	gray := uint8(255 + (float64(y)-255)*a)
+	if c.A == 0 {
+		gray = 255
+	}
 	return color.RGBA{gray, gray, gray, 255}
 }
 
