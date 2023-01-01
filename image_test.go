@@ -12,8 +12,7 @@ import (
 )
 
 // false is only for debugging purposes.
-var removeDiffImages = false
-var opts = NewOptions()
+var removeDiffImages = true
 
 func TestNewImage(t *testing.T) {
 	img := NewImage()
@@ -50,6 +49,18 @@ func TestImageSetPath(t *testing.T) {
 	img.SetPath(want)
 	if want != img.Path {
 		t.Errorf("Expected %v got %v", want, img.Path)
+	}
+}
+
+func TestImageSize(t *testing.T) {
+	img, err := NewImageFromPath("./res/gray8-a.png")
+	if err != nil {
+		t.Error(err)
+	}
+	want := 256
+	res := img.Size()
+	if want != res {
+		t.Errorf("Expected %v got %v", want, res)
 	}
 }
 

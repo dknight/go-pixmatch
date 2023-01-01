@@ -17,6 +17,9 @@ var (
 
 	// ErrCannotWriteOutputDiff means that output cannot be written.
 	ErrCannotWriteOutputDiff = errors.New("Cannot write diff output")
+
+	// ErrUnknownFormat means image format is not supported or unknown.
+	ErrUnknownFormat = errors.New("Unknown image format")
 )
 
 // Exit codes not defined in BSD and Linux

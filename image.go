@@ -75,6 +75,11 @@ func (img *Image) Load(rd io.Reader) (err error) {
 	return
 }
 
+// Size gets total size of the image in pixels.
+func (img *Image) Size() int {
+	return img.Rect.Dx() * img.Rect.Dy()
+}
+
 // Compare returns the number of different pixels.
 func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 	if opts == nil {
@@ -155,7 +160,7 @@ func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 
 // Empty checks that images is empty of has theoretical size 0x0 pixels.
 func (img *Image) Empty() bool {
-	if img.Image == nil {
+	if img == nil || img.Image == nil {
 		return true
 	}
 	return img.Rect.Empty()

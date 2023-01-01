@@ -86,7 +86,7 @@ func (opts *Options) SetDiffColor(v color.Color) *Options {
 	return opts
 }
 
-// SetDiffColor sets color of alternative difference.
+// SetDiffColorAlt sets color of alternative difference.
 func (opts *Options) SetDiffColorAlt(v color.Color) *Options {
 	opts.DiffColorAlt = v
 	return opts
