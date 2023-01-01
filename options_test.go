@@ -18,7 +18,7 @@ func TestResolveDiffColor(t *testing.T) {
 	opts := NewOptions()
 	res := opts.ResolveDiffColor()
 	if opts.DiffColorAlt != nil {
-		t.Errorf("Expected %+v got %+v", nil, res)
+		t.Errorf("Expected %+v got %+v", nil, res) // diff color
 	}
 
 	opts.DiffColorAlt = color.RGBA{255, 255, 0, 255}

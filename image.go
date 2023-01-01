@@ -77,6 +77,10 @@ func (img *Image) Load(rd io.Reader) (err error) {
 
 // Compare returns the number of different pixels.
 func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
+	if opts == nil {
+		opts = NewOptions()
+	}
+
 	// If empty images return error.
 	if img.Empty() || img2.Empty() {
 		return ExitEmptyImage, ErrImageIsEmpty
@@ -94,10 +98,6 @@ func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 		// but original pixelmatch.js has it, maybe add later extra
 		// option for this.
 		return 0, nil
-	}
-
-	if opts == nil {
-		opts = NewOptions()
 	}
 
 	maxDelta := YIQDeltaMax * opts.Threshold * opts.Threshold
@@ -139,6 +139,7 @@ func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 	}
 
 	wg.Wait()
+
 	if opts.Output != nil {
 		err := opts.Output.Save(img.Format)
 		if err != nil {

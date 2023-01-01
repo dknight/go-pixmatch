@@ -37,9 +37,20 @@ var defaultOptions = Options{
 	Output:       nil,
 }
 
-// NewOptions creates new Options instance.
+// NewOptions creates new Options instance. Here possible to use
+// https://github.com/imdario/mergo, but I always try to avoid dependcies
+// where possible.
 func NewOptions() *Options {
-	return &defaultOptions
+	return &Options{
+		Threshold:    defaultOptions.Threshold,
+		Alpha:        defaultOptions.Alpha,
+		DetectAA:     defaultOptions.DetectAA,
+		AAColor:      defaultOptions.AAColor,
+		DiffColor:    defaultOptions.DiffColor,
+		DiffColorAlt: defaultOptions.DiffColorAlt,
+		DiffMask:     defaultOptions.DiffMask,
+		Output:       defaultOptions.Output,
+	}
 }
 
 // ResolveDiffColor resolves the difference color or alternate difference

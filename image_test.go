@@ -2,6 +2,7 @@ package pixmatch
 
 import (
 	"image"
+	"image/color"
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
@@ -342,8 +343,8 @@ func TestFullCompare_PNGAA(t *testing.T) {
 		}
 	})
 	paths := []string{
-		"./res/aa-a.png",
-		"./res/aa-b.png",
+		"./res/kitten-a.png",
+		"./res/kitten-b.png",
 	}
 	images := make([]*Image, len(paths))
 	for i, p := range paths {
@@ -362,7 +363,7 @@ func TestFullCompare_PNGAA(t *testing.T) {
 	if err != nil {
 		t.Error("Compare", err.Error())
 	}
-	want := 51
+	want := 1873
 	if want != diff {
 		t.Errorf("Expected %v got %v", want, diff)
 	}
@@ -438,6 +439,151 @@ func TestFullCompare_JPEG(t *testing.T) {
 		t.Error("Compare", err.Error())
 	}
 	want := 1841
+	if want != diff {
+		t.Errorf("Expected %v got %v", want, diff)
+	}
+}
+func TestFullCompare_1(t *testing.T) {
+	// t.SkipNow()
+	diffFileName := "./res/original/1diff~.png"
+	t.Cleanup(func() {
+		if removeDiffImages {
+			os.Remove(diffFileName)
+		}
+	})
+	paths := []string{
+		"./res/original/1a.png",
+		"./res/original/1b.png",
+	}
+	images := make([]*Image, len(paths))
+	for i, p := range paths {
+		images[i], _ = NewImageFromPath(p)
+	}
+	output, err := NewOutput(diffFileName,
+		images[0].Rect.Dx(), images[0].Rect.Dy())
+	if err != nil {
+		t.Error(err)
+	}
+
+	opts.Output = output
+	opts.Threshold = 0.05
+	opts.DetectAA = true
+	// opts.DiffMask = false
+	diff, err := images[0].Compare(images[1], opts)
+	if err != nil {
+		t.Error("Compare", err.Error())
+	}
+	want := 143
+	if want != diff {
+		t.Errorf("Expected %v got %v", want, diff)
+	}
+}
+
+func TestFullCompare_2(t *testing.T) {
+	// t.SkipNow()
+	diffFileName := "./res/original/2diff~.png"
+	t.Cleanup(func() {
+		if removeDiffImages {
+			os.Remove(diffFileName)
+		}
+	})
+	paths := []string{
+		"./res/original/2a.png",
+		"./res/original/2b.png",
+	}
+	images := make([]*Image, len(paths))
+	for i, p := range paths {
+		images[i], _ = NewImageFromPath(p)
+	}
+	output, err := NewOutput(diffFileName,
+		images[0].Rect.Dx(), images[0].Rect.Dy())
+	if err != nil {
+		t.Error(err)
+	}
+
+	opts.Output = output
+	opts.Threshold = 0.05
+	opts.Alpha = 0.5
+	opts.AAColor = color.RGBA{0, 192, 0, 255}
+	opts.DiffColor = color.RGBA{255, 0, 255, 255}
+	// opts.DiffMask = false
+	diff, err := images[0].Compare(images[1], opts)
+	if err != nil {
+		t.Error("Compare", err.Error())
+	}
+	want := 56730
+	if want != diff {
+		t.Errorf("Expected %v got %v", want, diff)
+	}
+}
+
+func TestFullCompare_5(t *testing.T) {
+	// t.SkipNow()
+	diffFileName := "./res/original/5diff~.png"
+	t.Cleanup(func() {
+		if removeDiffImages {
+			os.Remove(diffFileName)
+		}
+	})
+	paths := []string{
+		"./res/original/5a.png",
+		"./res/original/5b.png",
+	}
+	images := make([]*Image, len(paths))
+	for i, p := range paths {
+		images[i], _ = NewImageFromPath(p)
+	}
+	output, err := NewOutput(diffFileName,
+		images[0].Rect.Dx(), images[0].Rect.Dy())
+	if err != nil {
+		t.Error(err)
+	}
+
+	opts.Output = output
+	opts.Threshold = 0.05
+	opts.DetectAA = true
+	// opts.DiffMask = false
+	diff, err := images[0].Compare(images[1], opts)
+	if err != nil {
+		t.Error("Compare", err.Error())
+	}
+	want := 256
+	if want != diff {
+		t.Errorf("Expected %v got %v", want, diff)
+	}
+}
+
+func TestFullCompare_6(t *testing.T) {
+	// t.SkipNow()
+	diffFileName := "./res/original/6diff~.png"
+	t.Cleanup(func() {
+		if removeDiffImages {
+			os.Remove(diffFileName)
+		}
+	})
+	paths := []string{
+		"./res/original/6a.png",
+		"./res/original/6b.png",
+	}
+	images := make([]*Image, len(paths))
+	for i, p := range paths {
+		images[i], _ = NewImageFromPath(p)
+	}
+	output, err := NewOutput(diffFileName,
+		images[0].Rect.Dx(), images[0].Rect.Dy())
+	if err != nil {
+		t.Error(err)
+	}
+
+	opts.Output = output
+	opts.Threshold = 0.05
+	opts.DetectAA = true
+	// opts.DiffMask = false
+	diff, err := images[0].Compare(images[1], opts)
+	if err != nil {
+		t.Error("Compare", err.Error())
+	}
+	want := 51
 	if want != diff {
 		t.Errorf("Expected %v got %v", want, diff)
 	}

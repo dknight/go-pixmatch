@@ -10,8 +10,8 @@ import (
 
 func main() {
 	paths := []string{
-		"../res/kitten1.png",
-		"../res/kitten2.png",
+		"../res/kitten-a.png",
+		"../res/kitten-b.png",
 	}
 
 	opts := pixmatch.NewOptions()

@@ -4,3 +4,4 @@ Find good pictures for examples GIF JPG PNG
 
 + Add JPEG support (dirty)
 + Add GIF support
++ Don't use pointers in options
