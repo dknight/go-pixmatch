@@ -101,7 +101,6 @@ func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 	}
 
 	maxDelta := YIQDeltaMax * opts.Threshold * opts.Threshold
-	bpc := img.BytesPerColor()
 	diffColor := opts.ResolveDiffColor()
 	diff := 0
 
@@ -113,7 +112,7 @@ func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 			for x := img.Rect.Min.X; x < img.Rect.Max.X; x++ {
 				point := image.Pt(x, y)
 				pos := img.Position(point)
-				delta := ColorDelta(img.PixData, img2.PixData, pos, pos, bpc, false)
+				delta := img.ColorDelta(img2, pos, pos, false)
 
 				if math.Abs(delta) > maxDelta {
 					if opts.DetectAA && (img.Antialiased(img2, point) || img2.Antialiased(img, point)) {
@@ -181,17 +180,19 @@ func (img *Image) Identical(img2 *Image) bool {
 func (img *Image) Bytes() []byte {
 	val := reflect.ValueOf(img.Image)
 	ptr := reflect.Indirect(val)
+
+	bs := make([]byte, 0, 1024)
 	pixs := ptr.FieldByName("Pix")
-	// return empty byte slice if something is really wrong with the image.
 	if pixs.IsValid() {
-		return pixs.Bytes()
+		bs = pixs.Bytes()
 	}
+
 	// For JPEG
 	y := ptr.FieldByName("Y")
 	if y.IsValid() {
-		return y.Bytes()
+		bs = y.Bytes()
 	}
-	return nil
+	return bs
 }
 
 // Stride get generic stride. Default return value is zero.
@@ -234,7 +235,6 @@ func (img *Image) BytesPerColor() int {
 
 	// NOTE need?
 	switch img.Image.(type) {
-	case *image.YCbCr:
 	case *image.Paletted:
 		return 1
 	}
@@ -246,25 +246,47 @@ func (img *Image) BytesPerColor() int {
 // position, returns negative if the img2 pixel is darker.
 // If argument onlyY is true, the only brightness level will be returned
 // (Y component of YIQ model).
-func ColorDelta(pix1, pix2 []uint32, m, n int, bpc int, onlyY bool) float64 {
+func (img *Image) ColorDelta(img2 *Image, m, n int, onlyY bool) float64 {
+	bpc := img.BytesPerColor()
 	var r1, g1, b1, a1 uint32
 	var r2, g2, b2, a2 uint32
 	switch bpc {
 	case 1:
-		r1, g1, b1, a1 = pix1[m], pix1[m], pix1[m], pix1[m]
-		r2, g2, b2, a2 = pix2[n], pix2[n], pix2[n], pix2[n]
+		r1, g1, b1, a1 = img.PixData[m], img.PixData[m], img.PixData[m], img.PixData[m]
+		r2, g2, b2, a2 = img2.PixData[n], img2.PixData[n], img2.PixData[n], img2.PixData[n]
 	case 2:
-		r1, g1, b1, a1 = pix1[m], pix1[m], pix1[m], pix1[m+1]
-		r2, g2, b2, a2 = pix2[n], pix2[n], pix2[n], pix2[n+1]
-	default:
+		r1, g1, b1, a1 = img.PixData[m], img.PixData[m], img.PixData[m], img.PixData[m+1]
+		r2, g2, b2, a2 = img2.PixData[n], img2.PixData[n], img2.PixData[n], img2.PixData[n+1]
 	case 4:
-		r1, g1, b1, a1 = pix1[m], pix1[m+1], pix1[m+2], pix1[m+3]
-		r2, g2, b2, a2 = pix2[n], pix2[n+1], pix2[n+2], pix2[n+3]
-	case 8:
-		r1, r2 = pix1[0]<<8|pix1[1], pix2[0]<<8|pix2[1]
-		g1, g2 = pix1[2]<<8|pix1[3], pix2[2]<<8|pix2[3]
-		b1, b2 = pix1[4]<<8|pix1[5], pix2[4]<<8|pix2[5]
-		a1, a2 = pix1[6]<<8|pix1[7], pix2[6]<<8|pix2[7]
+		r1, g1, b1, a1 = img.PixData[m], img.PixData[m+1], img.PixData[m+2], img.PixData[m+3]
+		r2, g2, b2, a2 = img2.PixData[n], img2.PixData[n+1], img2.PixData[n+2], img2.PixData[n+3]
+	case 8: // NOTE not sure about this
+		r1, r2 = img.PixData[0]<<8|img.PixData[1], img2.PixData[0]<<8|img2.PixData[1]
+		g1, g2 = img.PixData[2]<<8|img.PixData[3], img2.PixData[2]<<8|img2.PixData[3]
+		b1, b2 = img.PixData[4]<<8|img.PixData[5], img2.PixData[4]<<8|img2.PixData[5]
+		a1, a2 = img.PixData[6]<<8|img.PixData[7], img2.PixData[6]<<8|img2.PixData[7]
+	}
+
+	switch img.Image.(type) {
+	case *image.Paletted:
+		x := img.PixData[m]
+		y := img2.PixData[n]
+		palette1 := img.Image.(*image.Paletted).Palette
+		palette2 := img2.Image.(*image.Paletted).Palette
+		r1, g1, b1, a1 = palette1[x].RGBA()
+		r2, g2, b2, a2 = palette2[y].RGBA()
+		r1 >>= 8
+		g1 >>= 8
+		b1 >>= 8
+		a1 >>= 8
+		r2 >>= 8
+		g2 >>= 8
+		b2 >>= 8
+		a2 >>= 8
+		//TODO jpeg
+		// case *image.YCbCr:
+		// r1, g1, b1, a1 = img.Image.(*image.YCbCr).RGBA64At(m, n).RGBA()
+		// r2, g2, b2, a2 = img2.Image.(*image.YCbCr).RGBA64At(m, n).RGBA()
 	}
 
 	color1 := NewColor(r1, g1, b1, a1)
@@ -324,7 +346,6 @@ func (img *Image) Antialiased(img2 *Image, pt image.Point) bool {
 
 	min, max := 0.0, 0.0
 	minX, minY, maxX, maxY := 0, 0, 0, 0
-	bpc := img.BytesPerColor()
 
 	for x := x1; x <= x2; x++ {
 		for y := y1; y <= y2; y++ {
@@ -333,7 +354,7 @@ func (img *Image) Antialiased(img2 *Image, pt image.Point) bool {
 			}
 
 			pos2 := img.Position(image.Pt(x, y))
-			delta := ColorDelta(img.PixData, img.PixData, pos, pos2, bpc, true)
+			delta := img.ColorDelta(img, pos, pos2, true)
 			if delta == 0 {
 				neibrs++
 				if neibrs > 2 {

@@ -228,11 +228,9 @@ func TestColorDelta(t *testing.T) {
 		image.Point{13, 16}: 15476.475726033921,
 	}
 
-	bpc := images[0].BytesPerColor()
 	for pt, want := range pairs {
 		pos := images[0].Position(pt)
-		res := ColorDelta(images[0].PixData, images[1].PixData,
-			pos, pos, bpc, false)
+		res := images[0].ColorDelta(images[1], pos, pos, false)
 		if res != want {
 			t.Errorf("Expected %v got %v", want, res)
 		}
@@ -240,7 +238,7 @@ func TestColorDelta(t *testing.T) {
 
 	// Only Y (brigthness) component.
 	pos := images[0].Position(image.Point{11, 58})
-	res := ColorDelta(images[0].PixData, images[1].PixData, pos, pos, bpc, true)
+	res := images[0].ColorDelta(images[1], pos, pos, true)
 	want := 111.97145726
 	if res != want {
 		t.Errorf("Expected %v got %v", want, res)
@@ -386,7 +384,6 @@ func TestFullCompare_GIF(t *testing.T) {
 		images[i], _ = NewImageFromPath(p)
 	}
 
-	opts.DetectAA = false
 	output, err := NewOutput(diffFileName,
 		images[0].Rect.Dx(), images[0].Rect.Dy())
 	if err != nil {
@@ -401,7 +398,7 @@ func TestFullCompare_GIF(t *testing.T) {
 	if err != nil {
 		t.Error("Compare", err.Error())
 	}
-	want := 294
+	want := 95
 	if want != diff {
 		t.Errorf("Expected %v got %v", want, diff)
 	}
@@ -511,7 +508,40 @@ func TestFullCompare_2(t *testing.T) {
 	if err != nil {
 		t.Error("Compare", err.Error())
 	}
-	want := 56730
+	want := 12437
+	if want != diff {
+		t.Errorf("Expected %v got %v", want, diff)
+	}
+}
+func TestFullCompare_4(t *testing.T) {
+	// t.SkipNow()
+	diffFileName := "./res/original/4diff~.png"
+	t.Cleanup(func() {
+		if removeDiffImages {
+			os.Remove(diffFileName)
+		}
+	})
+	paths := []string{
+		"./res/original/4a.png",
+		"./res/original/4b.png",
+	}
+	images := make([]*Image, len(paths))
+	for i, p := range paths {
+		images[i], _ = NewImageFromPath(p)
+	}
+	output, err := NewOutput(diffFileName,
+		images[0].Rect.Dx(), images[0].Rect.Dy())
+	if err != nil {
+		t.Error(err)
+	}
+
+	opts.Output = output
+	opts.Threshold = 0.05
+	diff, err := images[0].Compare(images[1], opts)
+	if err != nil {
+		t.Error("Compare", err.Error())
+	}
+	want := 36049
 	if want != diff {
 		t.Errorf("Expected %v got %v", want, diff)
 	}
