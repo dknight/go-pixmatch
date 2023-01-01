@@ -8,6 +8,7 @@ import (
 	"math"
 	"os"
 	"reflect"
+	"sync"
 )
 
 const (
@@ -67,7 +68,6 @@ func (img *Image) Load(rd io.Reader) (err error) {
 	if err != nil {
 		return
 	}
-
 	// Cache some stuff
 	img.PixData = img.Uint32()
 	img.Rect = img.Bounds()
@@ -105,31 +105,40 @@ func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 	diffColor := opts.ResolveDiffColor()
 	diff := 0
 
+	var wg sync.WaitGroup
+	var mu sync.Mutex
 	for y := img.Rect.Min.Y; y < img.Rect.Max.Y; y++ {
-		for x := img.Rect.Min.X; x < img.Rect.Max.X; x++ {
-			point := image.Pt(x, y)
-			pos := img.Position(point)
-			delta := ColorDelta(img.PixData, img2.PixData, pos, pos, bpc, false)
+		wg.Add(1)
+		go func(y int) {
+			for x := img.Rect.Min.X; x < img.Rect.Max.X; x++ {
+				point := image.Pt(x, y)
+				pos := img.Position(point)
+				delta := ColorDelta(img.PixData, img2.PixData, pos, pos, bpc, false)
 
-			if math.Abs(delta) > maxDelta {
-				if opts.DetectAA && (img.Antialiased(img2, point) || img2.Antialiased(img, point)) {
-					if opts.Output != nil && !opts.DiffMask {
-						opts.Output.Image.Set(x, y, opts.AAColor)
+				if math.Abs(delta) > maxDelta {
+					if opts.DetectAA && (img.Antialiased(img2, point) || img2.Antialiased(img, point)) {
+						if opts.Output != nil && !opts.DiffMask {
+							opts.Output.Image.Set(x, y, opts.AAColor)
+						}
+					} else {
+						if opts.Output != nil {
+							opts.Output.Image.Set(x, y, diffColor)
+						}
+						mu.Lock()
+						diff++
+						mu.Unlock()
 					}
-				} else {
-					if opts.Output != nil {
-						opts.Output.Image.Set(x, y, diffColor)
-					}
-					diff++
+				} else if opts.Output != nil && !opts.DiffMask {
+					r, g, b, a := img.At(x, y).RGBA()
+					gray := NewColor(r, g, b, a).BlendToGray(opts.Alpha)
+					opts.Output.Image.Set(x, y, gray)
 				}
-			} else if opts.Output != nil && !opts.DiffMask {
-				r, g, b, a := img.At(x, y).RGBA()
-				gray := NewColor(r, g, b, a).BlendToGray(opts.Alpha)
-				opts.Output.Image.Set(x, y, gray)
-
 			}
-		}
+			wg.Done()
+		}(y)
 	}
+
+	wg.Wait()
 	if opts.Output != nil {
 		err := opts.Output.Save(img.Format)
 		if err != nil {
@@ -182,39 +191,6 @@ func (img *Image) Bytes() []byte {
 		return y.Bytes()
 	}
 	return nil
-
-	// -----
-	// If reflection is not enough clear use something like this or generics!
-	//------
-
-	// switch img.ColorModel() {
-	// case color.RGBAModel:
-	// 	return img.Image.(*image.RGBA).Pix
-	// case color.RGBA64Model:
-	// 	return img.Image.(*image.RGBA64).Pix
-	// case color.NRGBAModel:
-	// 	return img.Image.(*image.NRGBA).Pix
-	// case color.NRGBA64Model:
-	// 	return img.Image.(*image.NRGBA64).Pix
-	// case color.AlphaModel:
-	// 	return img.Image.(*image.Alpha).Pix
-	// case color.Alpha16Model:
-	// 	return img.Image.(*image.Alpha16).Pix
-	// case color.GrayModel:
-	// 	return img.Image.(*image.Gray).Pix
-	// case color.Gray16Model:
-	// 	return img.Image.(*image.Gray16).Pix
-	// -------------- JPEG ------------------
-	// 	// case color.NYCbCrAModel:
-	// 	// 	return img.Image.(*image.NYCbCrA).Y
-	// 	// case color.YCbCrModel:
-	// 	// 	return img.Image.(*image.YCbCr).Y
-	// }
-
-	// switch img.ColorModel().(type) {
-	// case color.Palette:
-	// 	return img.Image.(*image.Paletted).Pix
-	// }
 }
 
 // Stride get generic stride. Default return value is zero.
@@ -224,8 +200,7 @@ func (img *Image) Stride() int {
 	ptr := reflect.Indirect(val)
 	stride := ptr.FieldByName("Stride")
 	if stride.IsValid() {
-		// reflect.Value.Int() returns int64.
-		return int(stride.Int())
+		return int(stride.Int()) // int64
 	}
 
 	// for JPEG (NOTE it is very dirty)
@@ -255,9 +230,15 @@ func (img *Image) BytesPerColor() int {
 	case color.NRGBA64Model, color.RGBA64Model:
 		return 8
 	}
-	// NOTE is this OK?
-	// By default return 1 is for palette or YCbCr.
-	return 1
+
+	// NOTE need?
+	switch img.Image.(type) {
+	case *image.YCbCr:
+	case *image.Paletted:
+		return 1
+	}
+
+	return 1 // default for any other possible case if exists...
 }
 
 // ColorDelta is the squared YUV distance between colors at this pixel
@@ -265,17 +246,28 @@ func (img *Image) BytesPerColor() int {
 // If argument onlyY is true, the only brightness level will be returned
 // (Y component of YIQ model).
 func ColorDelta(pix1, pix2 []uint32, m, n int, bpc int, onlyY bool) float64 {
-	var color1 *Color
-	var color2 *Color
-
-	// TODO all cases please, 1,2,4,8
-	if bpc != 1 {
-		color1 = NewColor(pix1[m+0], pix1[m+1], pix1[m+2], pix1[m+3])
-		color2 = NewColor(pix2[n+0], pix2[n+1], pix2[n+2], pix2[n+3])
-	} else {
-		color1 = NewColor(pix1[m+0], pix1[m+0], pix1[m+0], pix1[m+0])
-		color2 = NewColor(pix2[n+0], pix2[n+0], pix2[n+0], pix2[n+0])
+	var r1, g1, b1, a1 uint32
+	var r2, g2, b2, a2 uint32
+	switch bpc {
+	case 1:
+		r1, g1, b1, a1 = pix1[m], pix1[m], pix1[m], pix1[m]
+		r2, g2, b2, a2 = pix2[n], pix2[n], pix2[n], pix2[n]
+	case 2:
+		r1, g1, b1, a1 = pix1[m], pix1[m], pix1[m], pix1[m+1]
+		r2, g2, b2, a2 = pix2[n], pix2[n], pix2[n], pix2[n+1]
+	default:
+	case 4:
+		r1, g1, b1, a1 = pix1[m], pix1[m+1], pix1[m+2], pix1[m+3]
+		r2, g2, b2, a2 = pix2[n], pix2[n+1], pix2[n+2], pix2[n+3]
+	case 8:
+		r1, r2 = pix1[0]<<8|pix1[1], pix2[0]<<8|pix2[1]
+		g1, g2 = pix1[2]<<8|pix1[3], pix2[2]<<8|pix2[3]
+		b1, b2 = pix1[4]<<8|pix1[5], pix2[4]<<8|pix2[5]
+		a1, a2 = pix1[6]<<8|pix1[7], pix2[6]<<8|pix2[7]
 	}
+
+	color1 := NewColor(r1, g1, b1, a1)
+	color2 := NewColor(r2, g2, b2, a2)
 
 	// If all colors are the same then no delta.
 	if color1.Equals(color2) {
@@ -306,7 +298,7 @@ func ColorDelta(pix1, pix2 []uint32, m, n int, bpc int, onlyY bool) float64 {
 	return delta
 }
 
-// Uint32 converts bytes array to []uint32 slice.
+// Uint32 converts bytes array into []uint32 slice.
 func (img *Image) Uint32() []uint32 {
 	bs := img.Bytes()
 	ui32 := make([]uint32, len(bs))
@@ -340,9 +332,7 @@ func (img *Image) Antialiased(img2 *Image, pt image.Point) bool {
 			}
 
 			pos2 := img.Position(image.Pt(x, y))
-			delta := ColorDelta(img.PixData, img.PixData,
-				pos, pos2, bpc, true)
-
+			delta := ColorDelta(img.PixData, img.PixData, pos, pos2, bpc, true)
 			if delta == 0 {
 				neibrs++
 				if neibrs > 2 {
@@ -392,10 +382,14 @@ func (img *Image) SameNeighbors(pt image.Point, n int) bool {
 			}
 
 			pos2 := img.Position(image.Pt(x, y))
-			if bs[pos1+0] == bs[pos2+0] &&
-				bs[pos1+1] == bs[pos2+1] &&
-				bs[pos1+2] == bs[pos2+2] &&
-				bs[pos1+3] == bs[pos2+3] {
+			ok := true
+			for i := 0; i < img.BytesPerColor(); i++ {
+				if bs[pos1+i] != bs[pos2+i] {
+					ok = false
+					break
+				}
+			}
+			if ok {
 				neibrs++
 			}
 			if neibrs >= n {

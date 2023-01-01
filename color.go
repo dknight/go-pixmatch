@@ -36,36 +36,36 @@ func (c Color) YIQ() (float64, float64, float64) {
 
 // Y is RBG to Y (brightness) conversion.
 func (c Color) Y() float64 {
-	return float64(c.R)*float64(0.29889531) +
-		float64(c.G)*float64(0.58662247) +
-		float64(c.B)*float64(0.11448223)
+	return float64(c.R)*0.29889531 +
+		float64(c.G)*0.58662247 +
+		float64(c.B)*0.11448223
 }
 
 // I is RBG to I (chrominance) conversion.
 func (c Color) I() float64 {
-	return float64(c.R)*float64(0.59597799) -
-		float64(c.G)*float64(0.27417610) -
-		float64(c.B)*float64(0.32180189)
+	return float64(c.R)*0.59597799 -
+		float64(c.G)*0.27417610 -
+		float64(c.B)*0.32180189
 }
 
 // Q is RBG to Q (chrominance) conversion.
 func (c Color) Q() float64 {
-	return float64(c.R)*float64(0.21147017) -
-		float64(c.G)*float64(0.52261711) +
-		float64(c.B)*float64(0.31114694)
+	return float64(c.R)*0.21147017 -
+		float64(c.G)*0.52261711 +
+		float64(c.B)*0.31114694
 }
 
 // Blend is for blending colors with alpha.
 func (c Color) Blend(alpha uint32) *Color {
-	r := uint32(255.0 + (float64(c.R - 255*alpha)))
-	g := uint32(255.0 + (float64(c.G - 255*alpha)))
-	b := uint32(255.0 + (float64(c.B - 255*alpha)))
+	r := uint32(255 + (float64(c.R - 255*alpha)))
+	g := uint32(255 + (float64(c.G - 255*alpha)))
+	b := uint32(255 + (float64(c.B - 255*alpha)))
 	return NewColor(r, g, b, alpha)
 }
 
 // BlendToGray draws greyscaled color multiplied by alpha factor.
 func (c Color) BlendToGray(alpha float64) color.Color {
-	gray := byte(math.Round(255.0 - alpha*(float64(c.Y()-255.0))/255.0))
+	gray := uint8(math.Round(255.0 - alpha*(c.Y()-255.0)/255.0))
 	return color.RGBA{gray, gray, gray, 255}
 }
 
