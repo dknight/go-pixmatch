@@ -4,25 +4,33 @@ import (
 	"image/color"
 )
 
-// Options represents options structure where common comparison settings
+// Options represents the structure where common comparison's settings
 // are stored.
 type Options struct {
-	// Threshold is alpha threshold of maximum color delta.
+	// Threshold is threshold of the maximum color delta.
 	Threshold float64
-	// Alpha is alpha channel factor.
+
+	// Alpha is alpha channel factor (multiplier). Allowed values 0..1..
 	Alpha float64
-	// IncludeAA determines anti-aliasing pixels as difference count.
+
+	// IncludeAA sets anti-aliasing pixels as difference count.
 	IncludeAA bool
-	// AAColor is the color to mark anti-aliasing.
+
+	// AAColor is the color to mark anti-aliasing pixels.
 	AAColor color.Color
-	// DiffColor is the color to mark the difference.
+
+	// DiffColor is the color to highlight the differences.
 	DiffColor color.Color
+
 	// DiffColorAlt is the alternative difference color. Used whether
 	// to detect dark on light differences between two images and set
-	// an alternative color.
+	// an alternative color if required.
 	DiffColorAlt color.Color
-	// DiffMask set to use mask.
+
+	// DiffMask set to use mask, renders the differences without original
+	// image.
 	DiffMask bool
+
 	// Output is the final output of the image.
 	Output *Output
 }
@@ -40,8 +48,8 @@ var defaultOptions = Options{
 }
 
 // NewOptions creates new Options instance. Here possible to use
-// https://github.com/imdario/mergo, but I always try to avoid dependencies
-// where possible.
+// https://github.com/imdario/mergo
+// Me perosnally always try to avoid dependencies where possible.
 func NewOptions() *Options {
 	return &Options{
 		Threshold:    defaultOptions.Threshold,

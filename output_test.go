@@ -5,14 +5,14 @@ import (
 	"testing"
 )
 
-func TestNewOutput(t *testing.T) {
+func TestNewOutputToFile(t *testing.T) {
 	tmp, err := os.CreateTemp("", "tmp")
 	if err != nil {
 		t.Error(err)
 	}
 	defer os.Remove(tmp.Name())
 
-	want, err := NewOutput(tmp.Name(), 10, 10)
+	want, err := NewOutputToFile(tmp.Name(), 10, 10)
 	if err != nil {
 		t.Error(err)
 	}
@@ -28,12 +28,12 @@ func TestSave(t *testing.T) {
 	}
 	defer os.Remove(tmp.Name())
 
-	out, err := NewOutput("", 10, 10)
+	out, err := NewOutputToFile("", 10, 10)
 	if out != nil {
 		t.Error(err)
 	}
 
-	out, err = NewOutput(tmp.Name(), 10, 10)
+	out, err = NewOutputToFile(tmp.Name(), 10, 10)
 	if out == nil {
 		t.Error(err)
 	}

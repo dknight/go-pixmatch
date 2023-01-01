@@ -486,7 +486,7 @@ func TestImageCompare(t *testing.T) {
 			if err != nil {
 				t.Error(err)
 			}
-			output, err := NewOutput(pair.pathDiff,
+			output, err := NewOutputToFile(pair.pathDiff,
 				imageA.Rect.Dx(), imageB.Rect.Dy())
 			if err != nil {
 				t.Error(err)

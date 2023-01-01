@@ -13,12 +13,14 @@ import (
 type Output struct {
 	// Dest is the destination of writer where output will be written.
 	Dest io.Writer
+
 	// Image holds the image information.
 	Image *image.RGBA
 }
 
-// NewOutput creates output image for given path in filesystem.
-func NewOutput(path string, w, h int) (*Output, error) {
+// NewOutputToFile creates output image for given path in filesystem.
+// TODO: make more generic and accept io.Writer instead of path string.
+func NewOutputToFile(path string, w, h int) (*Output, error) {
 	dest, err := os.Create(path)
 	if err != nil {
 		return nil, err
@@ -42,5 +44,5 @@ func (out *Output) Save(format string) (err error) {
 	default:
 		err = ErrUnknownFormat
 	}
-	return err
+	return
 }
