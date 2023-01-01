@@ -361,7 +361,7 @@ func TestFullCompare_PNGAA(t *testing.T) {
 	if err != nil {
 		t.Error("Compare", err.Error())
 	}
-	want := 1873
+	want := 1872
 	if want != diff {
 		t.Errorf("Expected %v got %v", want, diff)
 	}
@@ -435,7 +435,7 @@ func TestFullCompare_JPEG(t *testing.T) {
 	if err != nil {
 		t.Error("Compare", err.Error())
 	}
-	want := 1841
+	want := 1782
 	if want != diff {
 		t.Errorf("Expected %v got %v", want, diff)
 	}

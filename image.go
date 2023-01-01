@@ -283,7 +283,7 @@ func (img *Image) ColorDelta(img2 *Image, m, n int, onlyY bool) float64 {
 		g2 >>= 8
 		b2 >>= 8
 		a2 >>= 8
-		//TODO jpeg
+		//TODO better JPEG support
 		// case *image.YCbCr:
 		// r1, g1, b1, a1 = img.Image.(*image.YCbCr).RGBA64At(m, n).RGBA()
 		// r2, g2, b2, a2 = img2.Image.(*image.YCbCr).RGBA64At(m, n).RGBA()
@@ -291,6 +291,8 @@ func (img *Image) ColorDelta(img2 *Image, m, n int, onlyY bool) float64 {
 
 	color1 := NewColor(r1, g1, b1, a1)
 	color2 := NewColor(r2, g2, b2, a2)
+
+	// fmt.Println(color1, color2)
 
 	// If all colors are the same then no delta.
 	if color1.Equals(color2) {
