@@ -12,7 +12,7 @@ import (
 )
 
 // false is only for debugging purposes.
-var removeDiffImages = true
+var removeDiffImages = false
 
 func TestNewImage(t *testing.T) {
 	img := NewImage()
@@ -263,7 +263,7 @@ func TestSameNeighbors(t *testing.T) {
 		image.Point{7, 99}:  true,
 		image.Point{13, 72}: true,
 		image.Point{17, 72}: true,
-		image.Point{17, 76}: true,
+		image.Point{6, 70}:  true,
 		image.Point{3, 10}:  true,
 		image.Point{11, 14}: false,
 	}

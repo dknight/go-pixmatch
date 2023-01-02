@@ -121,7 +121,9 @@ func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 				delta := img.ColorDelta(img2, pos, pos, false)
 
 				if math.Abs(delta) > maxDelta {
-					if !opts.IncludeAA && (img.Antialiased(img2, point) || img2.Antialiased(img, point)) {
+					if !opts.IncludeAA &&
+						(img.Antialiased(img2, point) ||
+							img2.Antialiased(img, point)) {
 						if opts.Output != nil && !opts.DiffMask {
 							opts.Output.Image.Set(x, y, opts.AAColor)
 						}
@@ -350,6 +352,7 @@ func (img *Image) Uint32() []uint32 {
 // NOTE most probably the better algorithms are required here.
 func (img *Image) Antialiased(img2 *Image, pt image.Point) bool {
 	neibrs := 0
+	n := 2
 	x1 := intMax(pt.X-1, img.Rect.Min.X)
 	y1 := intMax(pt.Y-1, img.Rect.Min.Y)
 	x2 := intMin(pt.X+1, img.Rect.Max.X-1)
@@ -373,7 +376,7 @@ func (img *Image) Antialiased(img2 *Image, pt image.Point) bool {
 			delta := img.ColorDelta(img, pos, pos2, true)
 			if delta == 0 {
 				neibrs++
-				if neibrs > 2 {
+				if neibrs > n {
 					return false
 				}
 			} else if delta < min {
@@ -392,10 +395,10 @@ func (img *Image) Antialiased(img2 *Image, pt image.Point) bool {
 		return false
 	}
 
-	return (img.SameNeighbors(image.Pt(minX, minY), 3) &&
-		img2.SameNeighbors(image.Pt(minX, minY), 3)) ||
-		(img.SameNeighbors(image.Pt(maxX, maxY), 3) &&
-			img2.SameNeighbors(image.Pt(maxX, maxY), 3))
+	return (img.SameNeighbors(image.Pt(minX, minY), n) &&
+		img2.SameNeighbors(image.Pt(minX, minY), n)) ||
+		(img.SameNeighbors(image.Pt(maxX, maxY), n) &&
+			img2.SameNeighbors(image.Pt(maxX, maxY), n))
 }
 
 // SameNeighbors checks if a pixel has n+ adjacent pixels of the
@@ -430,7 +433,7 @@ func (img *Image) SameNeighbors(pt image.Point, n int) bool {
 			if ok {
 				neibrs++
 			}
-			if neibrs >= n {
+			if neibrs > n {
 				return true
 			}
 		}
