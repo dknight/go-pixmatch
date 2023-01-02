@@ -1,14 +1,15 @@
 Read and try to resolve issues in original pixel match.
 Find good pictures for examples GIF JPG PNG
-Write docs
 Write examples
 Write README.md
 Make CLI
 Make optimizations, more more and more...
 
+Write docs
+
 + Write test pairs
 + Fixed Alpha blend doesnt' work correctly!
 + Fixed paletted colors.
-+ Add partial (dirty) JPEG support
++ Add partial JPEG support
 + Add GIF support
 + Don't use pointers in options

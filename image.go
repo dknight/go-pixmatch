@@ -216,7 +216,7 @@ func (img *Image) Stride() int {
 		return int(stride.Int()) // int64
 	}
 
-	// for JPEG (NOTE this is very dirty)
+	// for JPEG
 	strideY := ptr.FieldByName("YStride")
 	if strideY.IsValid() {
 		return int(strideY.Int())
@@ -298,7 +298,7 @@ func (img *Image) ColorDelta(img2 *Image, m, n int, onlyY bool) float64 {
 		g2 >>= 8
 		b2 >>= 8
 		a2 >>= 8
-		//TODO better JPEG support
+		//NOTE better JPEG support?
 		// case *image.YCbCr:
 		// r1, g1, b1, a1 = img.Image.(*image.YCbCr).RGBA64At(m, n).RGBA()
 		// r2, g2, b2, a2 = img2.Image.(*image.YCbCr).RGBA64At(m, n).RGBA()
@@ -313,11 +313,11 @@ func (img *Image) ColorDelta(img2 *Image, m, n int, onlyY bool) float64 {
 	}
 
 	if color1.A < 255 {
-		color1 = color1.Blend(float64(color1.A))
+		color1 = color1.Blend(float64(color1.A) / 255.0)
 	}
 
 	if color2.A < 255 {
-		color2 = color2.Blend(float64(color2.A))
+		color2 = color2.Blend(float64(color2.A) / 255.0)
 	}
 
 	y1, y2 := color1.Y(), color2.Y()
@@ -415,7 +415,6 @@ func (img *Image) SameNeighbors(pt image.Point, n int) bool {
 		neibrs++
 	}
 
-	bs := img.Bytes()
 	for x := x1; x <= x2; x++ {
 		for y := y1; y <= y2; y++ {
 			if x == pt.X && y == pt.Y {
@@ -425,7 +424,7 @@ func (img *Image) SameNeighbors(pt image.Point, n int) bool {
 			pos2 := img.Position(image.Pt(x, y))
 			ok := true
 			for i := 0; i < img.BytesPerColor(); i++ {
-				if bs[pos1+i] != bs[pos2+i] {
+				if img.PixData[pos1+i] != img.PixData[pos2+i] {
 					ok = false
 					break
 				}

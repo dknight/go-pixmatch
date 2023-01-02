@@ -37,7 +37,7 @@ func (out *Output) Save(format string) (err error) {
 	switch format {
 	case "gif":
 		err = gif.Encode(out.Dest, out.Image, nil)
-	case "jpeg", "jpg":
+	case "jpeg":
 		err = jpeg.Encode(out.Dest, out.Image, nil)
 	case "png":
 		err = png.Encode(out.Dest, out.Image)

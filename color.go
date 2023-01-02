@@ -57,9 +57,9 @@ func (c Color) Q() float64 {
 // Blend is the procedure of blending the color with the alpha factor is
 // known as blending.
 func (c Color) Blend(a float64) *Color {
-	r := 255 + float64(c.R-255)*(a)
-	g := 255 + float64(c.G-255)*(a)
-	b := 255 + float64(c.B-255)*(a)
+	r := 255 - float64(c.R)*a
+	g := 255 - float64(c.G)*a
+	b := 255 - float64(c.B)*a
 	return NewColor(uint32(r), uint32(g), uint32(b), c.A)
 }
 
