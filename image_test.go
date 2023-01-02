@@ -12,7 +12,7 @@ import (
 )
 
 // false is only for debugging purposes.
-var removeDiffImages = false
+var removeDiffImages = true
 
 func TestNewImage(t *testing.T) {
 	img := NewImage()
@@ -486,8 +486,11 @@ func TestImageCompare(t *testing.T) {
 			if err != nil {
 				t.Error(err)
 			}
-			output, err := NewOutputToFile(pair.pathDiff,
-				imageA.Rect.Dx(), imageB.Rect.Dy())
+			fp, err := os.Create(pair.pathDiff)
+			if err != nil {
+				t.Error(err)
+			}
+			output, err := NewOutput(fp, imageA.Rect.Dx(), imageB.Rect.Dy())
 			if err != nil {
 				t.Error(err)
 			}

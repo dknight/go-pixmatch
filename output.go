@@ -6,7 +6,6 @@ import (
 	"image/jpeg"
 	"image/png"
 	"io"
-	"os"
 )
 
 // Output represents the structure of output and its parameters.
@@ -18,13 +17,8 @@ type Output struct {
 	Image *image.RGBA
 }
 
-// NewOutputToFile creates output image for given path in filesystem.
-// TODO: make more generic and accept io.Writer instead of path string.
-func NewOutputToFile(path string, w, h int) (*Output, error) {
-	dest, err := os.Create(path)
-	if err != nil {
-		return nil, err
-	}
+// NewOutput creates output image for given path in filesystem.
+func NewOutput(dest io.Writer, w, h int) (*Output, error) {
 	img := image.NewRGBA(image.Rect(0, 0, w, h))
 	return &Output{
 		Dest:  dest,
