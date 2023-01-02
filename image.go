@@ -92,11 +92,10 @@ func (img *Image) SetPath(path string) *Image {
 func (img *Image) Load(rd io.Reader) (err error) {
 	img.Image, img.Format, err = image.Decode(rd)
 	if err != nil {
-		return
+		return err
 	}
-	// Cache some stuff
+	// Cache pixel data because Uint32() is very expensive.
 	img.PixData = img.Uint32()
-
 	return
 }
 
@@ -185,7 +184,7 @@ func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 	return diff, nil
 }
 
-// Save encodes and writes image data to the output destination.
+// Save encodes and writes image data to the destination.
 func (img *Image) Save(wr io.Writer) (err error) {
 	switch img.Format {
 	case FormatGIF:
@@ -202,9 +201,6 @@ func (img *Image) Save(wr io.Writer) (err error) {
 
 // Empty checks that the image is empty or has a theoretical size of 0 pixels.
 func (img *Image) Empty() bool {
-	if img == nil || img.Image == nil {
-		return true
-	}
 	return img.Bounds().Empty()
 }
 

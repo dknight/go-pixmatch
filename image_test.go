@@ -15,12 +15,21 @@ import (
 var removeDiffImages = false
 
 func TestNewImage(t *testing.T) {
-	img := NewImage(100, 100, DefaultFormat)
+	img := NewImage(10, 10, DefaultFormat)
 	want := "*pixmatch.Image"
-	typ := reflect.TypeOf(img).String()
+	res := reflect.TypeOf(img).String()
 
-	if typ != want {
-		t.Errorf("Expected %v got %v", want, typ)
+	if res != want {
+		t.Errorf("Expected %v got %v", want, res)
+	}
+}
+
+func TestNewImage_DefaultFormat(t *testing.T) {
+	img := NewImage(10, 10, "")
+	want := DefaultFormat
+	res := img.Format
+	if res != want {
+		t.Errorf("Expected %v got %v", want, res)
 	}
 }
 
@@ -191,8 +200,8 @@ func TestPosition(t *testing.T) {
 }
 
 func TestCompare_Empty(t *testing.T) {
-	imgEmpty1 := NewImage(100, 100, DefaultFormat)
-	imgEmpty2 := NewImage(100, 100, DefaultFormat)
+	imgEmpty1 := NewImage(0, 0, DefaultFormat)
+	imgEmpty2 := NewImage(0, 0, DefaultFormat)
 	px, err := imgEmpty1.Compare(imgEmpty2, nil)
 	if px != ExitEmptyImage && err != nil {
 		t.Error("Images should be empty")
