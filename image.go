@@ -15,6 +15,7 @@ import (
 	"sync"
 )
 
+// Common constants for pixmatch package.
 const (
 	// YIQDeltaMax is the value of 35215. This is the maximum possible value
 	// for the YIQ difference metric.
@@ -69,7 +70,7 @@ func NewImageFromPath(path string) (*Image, error) {
 	}
 
 	img := NewImage(0, 0, format)
-	img.SetPath(path)
+	img.Path = path
 
 	fp, err := os.Open(img.Path)
 	if err != nil {
@@ -80,12 +81,6 @@ func NewImageFromPath(path string) (*Image, error) {
 		return nil, err
 	}
 	return img, nil
-}
-
-// SetPath sets the path to the image in the file system.
-func (img *Image) SetPath(path string) *Image {
-	img.Path = path
-	return img
 }
 
 // Load reads data from the reader.
@@ -99,7 +94,7 @@ func (img *Image) Load(rd io.Reader) (err error) {
 	return
 }
 
-// Size gives the total size of the image in pixels.
+// Size gives the total size of the image in pixels.
 func (img *Image) Size() int {
 	return img.Bounds().Dx() * img.Bounds().Dy()
 }
@@ -199,7 +194,7 @@ func (img *Image) Save(wr io.Writer) (err error) {
 	return
 }
 
-// Empty checks that the image is empty or has a theoretical size of 0 pixels.
+// Empty checks that the image is empty or has a theoretical size of 0 pixels.
 func (img *Image) Empty() bool {
 	// Some failing happens on benchmarking, how 'img' can be nil
 	// I have no idea.
@@ -209,7 +204,7 @@ func (img *Image) Empty() bool {
 	return img.Bounds().Empty()
 }
 
-// DimensionsEqual checks that the dimensions of the two images are equal.
+// DimensionsEqual checks that the dimensions of the two images are equal.
 func (img *Image) DimensionsEqual(img2 *Image) bool {
 	return img.Bounds().Eq(img2.Bounds())
 }
@@ -313,11 +308,12 @@ func (img *Image) ColorDelta(img2 *Image, m, n int, onlyY bool) float64 {
 	case 4:
 		r1, g1, b1, a1 = px1[m], px1[m+1], px1[m+2], px1[m+3]
 		r2, g2, b2, a2 = px2[n], px2[n+1], px2[n+2], px2[n+3]
-	case 8: // NOTE not sure about this
-		r1, r2 = px1[0]<<8|px1[1], px2[0]<<8|px2[1]
-		g1, g2 = px1[2]<<8|px1[3], px2[2]<<8|px2[3]
-		b1, b2 = px1[4]<<8|px1[5], px2[4]<<8|px2[5]
-		a1, a2 = px1[6]<<8|px1[7], px2[6]<<8|px2[7]
+	// NOTE not sure about this
+	case 8:
+		r1, r2 = px1[0]*px1[1], px2[0]*px2[1]
+		g1, g2 = px1[2]*px1[3], px2[2]*px2[3]
+		b1, b2 = px1[4]*px1[5], px2[4]*px2[5]
+		a1, a2 = px1[6]*px1[7], px2[6]*px2[7]
 	}
 
 	switch img.Image.(type) {
@@ -336,10 +332,8 @@ func (img *Image) ColorDelta(img2 *Image, m, n int, onlyY bool) float64 {
 		g2 >>= 8
 		b2 >>= 8
 		a2 >>= 8
-		//NOTE better JPEG support?
-		// case *image.YCbCr:
-		// r1, g1, b1, a1 = img.Image.(*image.YCbCr).RGBA64At(m, n).RGBA()
-		// r2, g2, b2, a2 = img2.Image.(*image.YCbCr).RGBA64At(m, n).RGBA()
+		// case *image.YCbCr, *image.NYCbCrA:
+		// Maybe do something here later...
 	}
 
 	color1 := NewColor(r1, g1, b1, a1)

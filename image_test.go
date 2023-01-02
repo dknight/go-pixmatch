@@ -52,15 +52,6 @@ func TestNewFromPath_NotExists(t *testing.T) {
 	}
 }
 
-func TestImageSetPath(t *testing.T) {
-	want := "./res/kitten-a.png"
-	img := NewImage(100, 100, DefaultFormat)
-	img.SetPath(want)
-	if want != img.Path {
-		t.Errorf("Expected %v got %v", want, img.Path)
-	}
-}
-
 func TestImageSize(t *testing.T) {
 	img, err := NewImageFromPath("./res/gray8-a.png")
 	if err != nil {
