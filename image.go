@@ -201,6 +201,11 @@ func (img *Image) Save(wr io.Writer) (err error) {
 
 // Empty checks that the image is empty or has a theoretical size of 0 pixels.
 func (img *Image) Empty() bool {
+	// Some failing happens on benchmarking, how 'img' can be nil
+	// I have no idea.
+	if img == nil {
+		return true
+	}
 	return img.Bounds().Empty()
 }
 
