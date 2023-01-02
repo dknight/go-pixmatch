@@ -2,6 +2,7 @@ package pixmatch
 
 import (
 	"image/color"
+	"io"
 )
 
 // Options is the structure that stores the settings for common comparisons.
@@ -32,7 +33,7 @@ type Options struct {
 	DiffMask bool
 
 	// Output is stucture where final image will be written.
-	Output *Output
+	Output io.Writer
 }
 
 // defaultOptions are just default options.
@@ -107,7 +108,7 @@ func (opts *Options) SetDiffMask(v bool) *Options {
 }
 
 // SetOutput sets the output as pointer to the options.
-func (opts *Options) SetOutput(v *Output) *Options {
+func (opts *Options) SetOutput(v io.Writer) *Options {
 	opts.Output = v
 	return opts
 }

@@ -4,9 +4,13 @@ import (
 	"bytes"
 	"image"
 	"image/color"
+	"image/gif"
+	"image/jpeg"
+	"image/png"
 	"io"
 	"math"
 	"os"
+	"path/filepath"
 	"reflect"
 	"sync"
 )
@@ -16,6 +20,13 @@ const (
 	// for the YIQ difference metric.
 	// Read more about YIQ NTSC https://en.wikipedia.org/wiki/YIQ
 	YIQDeltaMax = 35215
+
+	// DefaultFormat is used if format is not specified.
+	DefaultFormat = FormatPNG
+
+	FormatPNG  = "png"
+	FormatGIF  = "gif"
+	FormatJPEG = "jpeg"
 )
 
 // Image represents the image structure.
@@ -29,21 +40,35 @@ type Image struct {
 	// PixData contains data for colors as uint32 numbers.
 	PixData []uint32
 
-	// Rect is used as a cache for rectangle to avoid extra calculations.
-	Rect image.Rectangle
-
 	// Image is an embedded image from the standard library.
 	image.Image
 }
 
 // NewImage creates a new image instance.
-func NewImage() *Image {
-	return &Image{}
+func NewImage(w, h int, format string) *Image {
+	if format == "" {
+		format = DefaultFormat
+	}
+	return &Image{
+		Image:  image.NewRGBA(image.Rect(0, 0, w, h)),
+		Format: format,
+	}
 }
 
 // NewImageFromPath creates a new image instance from the file system path.
 func NewImageFromPath(path string) (*Image, error) {
-	img := NewImage()
+	ext := filepath.Ext(path)
+	format := FormatPNG
+	switch ext {
+	case ".png":
+		format = FormatPNG
+	case ".gif":
+		format = FormatGIF
+	case ".jpeg", ".jpg":
+		format = FormatJPEG
+	}
+
+	img := NewImage(0, 0, format)
 	img.SetPath(path)
 
 	fp, err := os.Open(img.Path)
@@ -71,14 +96,13 @@ func (img *Image) Load(rd io.Reader) (err error) {
 	}
 	// Cache some stuff
 	img.PixData = img.Uint32()
-	img.Rect = img.Bounds()
 
 	return
 }
 
 // Size gives the total size of the image in pixels.
 func (img *Image) Size() int {
-	return img.Rect.Dx() * img.Rect.Dy()
+	return img.Bounds().Dx() * img.Bounds().Dy()
 }
 
 // Compare returns the number of different pixels between two comparable
@@ -109,13 +133,14 @@ func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 
 	maxDelta := YIQDeltaMax * opts.Threshold * opts.Threshold
 	diff := 0
+	output := NewImage(img.Bounds().Dx(), img.Bounds().Dy(), img.Format)
 
 	var wg sync.WaitGroup
 	var mu sync.Mutex
-	for y := img.Rect.Min.Y; y < img.Rect.Max.Y; y++ {
+	for y := img.Bounds().Min.Y; y < img.Bounds().Max.Y; y++ {
 		wg.Add(1)
 		go func(y int) {
-			for x := img.Rect.Min.X; x < img.Rect.Max.X; x++ {
+			for x := img.Bounds().Min.X; x < img.Bounds().Max.X; x++ {
 				point := image.Pt(x, y)
 				pos := img.Position(point)
 				delta := img.ColorDelta(img2, pos, pos, false)
@@ -125,7 +150,7 @@ func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 						(img.Antialiased(img2, point) ||
 							img2.Antialiased(img, point)) {
 						if opts.Output != nil && !opts.DiffMask {
-							opts.Output.Image.Set(x, y, opts.AAColor)
+							output.Image.(*image.RGBA).Set(x, y, opts.AAColor)
 						}
 					} else {
 						if opts.Output != nil {
@@ -133,7 +158,7 @@ func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 							if delta < 0 && opts.DiffColorAlt != nil {
 								diffColor = opts.DiffColorAlt
 							}
-							opts.Output.Image.Set(x, y, diffColor)
+							output.Image.(*image.RGBA).Set(x, y, diffColor)
 						}
 						mu.Lock()
 						diff++
@@ -142,7 +167,7 @@ func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 				} else if opts.Output != nil && !opts.DiffMask {
 					r, g, b, a := img.At(x, y).RGBA()
 					gray := NewColor(r, g, b, a).BlendToGray(opts.Alpha)
-					opts.Output.Image.Set(x, y, gray)
+					output.Image.(*image.RGBA).Set(x, y, gray)
 				}
 			}
 			wg.Done()
@@ -152,7 +177,7 @@ func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 	wg.Wait()
 
 	if opts.Output != nil {
-		err := opts.Output.Save(img.Format)
+		err := output.Save(opts.Output)
 		if err != nil {
 			return -1, err
 		}
@@ -160,17 +185,32 @@ func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 	return diff, nil
 }
 
+// Save encodes and writes image data to the output destination.
+func (img *Image) Save(wr io.Writer) (err error) {
+	switch img.Format {
+	case FormatGIF:
+		err = gif.Encode(wr, img.Image, nil)
+	case FormatJPEG:
+		err = jpeg.Encode(wr, img.Image, nil)
+	case FormatPNG:
+		err = png.Encode(wr, img.Image)
+	default:
+		err = ErrUnknownFormat
+	}
+	return
+}
+
 // Empty checks that the image is empty or has a theoretical size of 0 pixels.
 func (img *Image) Empty() bool {
 	if img == nil || img.Image == nil {
 		return true
 	}
-	return img.Rect.Empty()
+	return img.Bounds().Empty()
 }
 
 // DimensionsEqual checks that the dimensions of the two images are equal.
 func (img *Image) DimensionsEqual(img2 *Image) bool {
-	return img.Rect.Eq(img2.Rect)
+	return img.Bounds().Eq(img2.Bounds())
 }
 
 // Identical determines whether or not images are identical at the byte level.
@@ -226,8 +266,8 @@ func (img *Image) Stride() int {
 // Formula
 //	(y2-y1)*Stride + (x2-x1)*bpc
 func (img *Image) Position(p image.Point) int {
-	return (p.Y-img.Rect.Min.Y)*img.Stride() +
-		(p.X-img.Rect.Min.X)*img.BytesPerColor()
+	return (p.Y-img.Bounds().Min.Y)*img.Stride() +
+		(p.X-img.Bounds().Min.X)*img.BytesPerColor()
 }
 
 // BytesPerColor resolves the count of the bytes per color: 1, 2, 4, or 8.
@@ -351,10 +391,10 @@ func (img *Image) Uint32() []uint32 {
 func (img *Image) Antialiased(img2 *Image, pt image.Point) bool {
 	neibrs := 0
 	n := 2
-	x1 := intMax(pt.X-1, img.Rect.Min.X)
-	y1 := intMax(pt.Y-1, img.Rect.Min.Y)
-	x2 := intMin(pt.X+1, img.Rect.Max.X-1)
-	y2 := intMin(pt.Y+1, img.Rect.Max.Y-1)
+	x1 := intMax(pt.X-1, img.Bounds().Min.X)
+	y1 := intMax(pt.Y-1, img.Bounds().Min.Y)
+	x2 := intMin(pt.X+1, img.Bounds().Max.X-1)
+	y2 := intMin(pt.Y+1, img.Bounds().Max.Y-1)
 	pos := img.Position(pt)
 
 	if pt.X == x1 || pt.X == x2 || pt.Y == y1 || pt.Y == y2 {
@@ -403,10 +443,10 @@ func (img *Image) Antialiased(img2 *Image, pt image.Point) bool {
 // same color.
 func (img *Image) SameNeighbors(pt image.Point, n int) bool {
 	neibrs := 0
-	x1 := intMax(pt.X-1, img.Rect.Min.X)
-	y1 := intMax(pt.Y-1, img.Rect.Min.Y)
-	x2 := intMin(pt.X+1, img.Rect.Max.X-1)
-	y2 := intMin(pt.Y+1, img.Rect.Max.Y-1)
+	x1 := intMax(pt.X-1, img.Bounds().Min.X)
+	y1 := intMax(pt.Y-1, img.Bounds().Min.Y)
+	x2 := intMin(pt.X+1, img.Bounds().Max.X-1)
+	y2 := intMin(pt.Y+1, img.Bounds().Max.Y-1)
 	pos1 := img.Position(pt)
 
 	if pt.X == x1 || pt.X == x2 || pt.Y == y1 || pt.Y == y2 {

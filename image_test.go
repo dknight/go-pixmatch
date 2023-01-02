@@ -12,10 +12,10 @@ import (
 )
 
 // false is only for debugging purposes.
-var removeDiffImages = true
+var removeDiffImages = false
 
 func TestNewImage(t *testing.T) {
-	img := NewImage()
+	img := NewImage(100, 100, DefaultFormat)
 	want := "*pixmatch.Image"
 	typ := reflect.TypeOf(img).String()
 
@@ -45,7 +45,7 @@ func TestNewFromPath_NotExists(t *testing.T) {
 
 func TestImageSetPath(t *testing.T) {
 	want := "./res/kitten-a.png"
-	img := NewImage()
+	img := NewImage(100, 100, DefaultFormat)
 	img.SetPath(want)
 	if want != img.Path {
 		t.Errorf("Expected %v got %v", want, img.Path)
@@ -92,8 +92,14 @@ func TestImageLoad(t *testing.T) {
 
 func TestImageEmpty(t *testing.T) {
 	exp := true
-	img := NewImage()
+	img := NewImage(0, 0, DefaultFormat)
 	if !img.Empty() {
+		t.Errorf("Expected %v got %v", exp, img.Empty())
+	}
+
+	exp = false
+	img = NewImage(10, 10, DefaultFormat)
+	if img.Empty() {
 		t.Errorf("Expected %v got %v", exp, img.Empty())
 	}
 }
@@ -185,8 +191,8 @@ func TestPosition(t *testing.T) {
 }
 
 func TestCompare_Empty(t *testing.T) {
-	imgEmpty1 := NewImage()
-	imgEmpty2 := NewImage()
+	imgEmpty1 := NewImage(100, 100, DefaultFormat)
+	imgEmpty2 := NewImage(100, 100, DefaultFormat)
 	px, err := imgEmpty1.Compare(imgEmpty2, nil)
 	if px != ExitEmptyImage && err != nil {
 		t.Error("Images should be empty")
@@ -490,14 +496,10 @@ func TestImageCompare(t *testing.T) {
 			if err != nil {
 				t.Error(err)
 			}
-			output, err := NewOutput(fp, imageA.Rect.Dx(), imageB.Rect.Dy())
-			if err != nil {
-				t.Error(err)
-			}
-			pair.options.SetOutput(output)
+			pair.options.SetOutput(fp)
 			diff, err := imageA.Compare(imageB, pair.options)
 			if err != nil {
-				t.Error("Compare", err.Error())
+				t.Error(err.Error())
 			}
 			if diff != pair.expectedDiff {
 				t.Errorf("Expected %v got %v", pair.expectedDiff, diff)

@@ -6,8 +6,8 @@ var benchOpts = NewOptions()
 
 func BenchmarkCompare_Empty(b *testing.B) {
 	images := []*Image{
-		NewImage(),
-		NewImage(),
+		NewImage(0, 0, DefaultFormat),
+		NewImage(0, 0, DefaultFormat),
 	}
 	b.ResetTimer()
 
