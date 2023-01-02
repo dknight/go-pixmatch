@@ -4,16 +4,16 @@ import (
 	"image/color"
 )
 
-// Options represents the structure where common comparison's settings
-// are stored.
+// Options is the structure that stores the settings for common comparisons.
 type Options struct {
-	// Threshold is threshold of the maximum color delta.
+	// Threshold is the threshold of the maximum color delta.
+	// Values range [0, 1.0].
 	Threshold float64
 
-	// Alpha is alpha channel factor (multiplier). Allowed values 0..1..
+	// Alpha is the alpha channel factor (multiplier). Values range [0, 1.0].
 	Alpha float64
 
-	// IncludeAA sets anti-aliasing pixels as difference count.
+	// IncludeAA sets anti-aliasing pixels as difference counts.
 	IncludeAA bool
 
 	// AAColor is the color to mark anti-aliasing pixels.
@@ -22,16 +22,16 @@ type Options struct {
 	// DiffColor is the color to highlight the differences.
 	DiffColor color.Color
 
-	// DiffColorAlt is the alternative difference color. Used whether
-	// to detect dark on light differences between two images and set
-	// an alternative color if required.
+	// DiffColorAlt is the alternative difference color. Used to detect dark
+	// and light differences between two images and set an alternative color if
+	// required.
 	DiffColorAlt color.Color
 
-	// DiffMask set to use mask, renders the differences without original
+	// DiffMask sets to use mask, renders the differences without the original
 	// image.
 	DiffMask bool
 
-	// Output is the final output of the image.
+	// Output is stucture where final image will be written.
 	Output *Output
 }
 
@@ -47,9 +47,9 @@ var defaultOptions = Options{
 	Output:       nil,
 }
 
-// NewOptions creates new Options instance. Here possible to use
-// https://github.com/imdario/mergo
-// Me perosnally always try to avoid dependencies where possible.
+// NewOptions creates a new Options instance. It is possible to use
+// https://github.com/imdario/mergo in this case. Personally, I try to avoid
+// dependencies whenever possible.
 func NewOptions() *Options {
 	return &Options{
 		Threshold:    defaultOptions.Threshold,
@@ -63,50 +63,50 @@ func NewOptions() *Options {
 	}
 }
 
-// SetThreshold sets threshold to options.
+// SetThreshold sets threshold to the options.
 func (opts *Options) SetThreshold(v float64) *Options {
 	opts.Threshold = v
 	return opts
 }
 
-// SetAlpha sets alpha to options.
+// SetAlpha sets alpha to the options.
 func (opts *Options) SetAlpha(v float64) *Options {
 	opts.Alpha = v
 	return opts
 }
 
-// SetIncludeAA sets anti-aliasing to options to counts anti-aliased
-// pixels as difference.
+// SetIncludeAA sets anti-aliasing to the options to counts anti-aliased
+// pixels as differences.
 func (opts *Options) SetIncludeAA(v bool) *Options {
 	opts.IncludeAA = v
 	return opts
 }
 
-// SetAAColor sets anti-aliased color to options.
+// SetAAColor sets anti-aliased color to the options.
 func (opts *Options) SetAAColor(v color.Color) *Options {
 	opts.AAColor = v
 	return opts
 }
 
-// SetDiffColor sets color of difference.
+// SetDiffColor sets color of differences to the options.
 func (opts *Options) SetDiffColor(v color.Color) *Options {
 	opts.DiffColor = v
 	return opts
 }
 
-// SetDiffColorAlt sets color of alternative difference.
+// SetDiffColorAlt sets color of alternative difference to the options.
 func (opts *Options) SetDiffColorAlt(v color.Color) *Options {
 	opts.DiffColorAlt = v
 	return opts
 }
 
-// SetDiffMask sets difference mask to options.
+// SetDiffMask sets difference mask to the options.
 func (opts *Options) SetDiffMask(v bool) *Options {
 	opts.DiffMask = v
 	return opts
 }
 
-// SetOutput sets the output as pointer to options.
+// SetOutput sets the output as pointer to the options.
 func (opts *Options) SetOutput(v *Output) *Options {
 	opts.Output = v
 	return opts

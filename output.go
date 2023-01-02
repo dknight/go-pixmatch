@@ -8,16 +8,17 @@ import (
 	"io"
 )
 
-// Output represents the structure of output and its parameters.
+// Output represents an image instance and its destination, where it will be
+// written.
 type Output struct {
-	// Dest is the destination of writer where output will be written.
+	// Dest is the destination, where the output will be written.
 	Dest io.Writer
 
-	// Image holds the image information.
+	// Image holds the image instance.
 	Image *image.RGBA
 }
 
-// NewOutput creates output image for given path in filesystem.
+// NewOutput creates an output image for a given file system path.
 func NewOutput(dest io.Writer, w, h int) (*Output, error) {
 	img := image.NewRGBA(image.Rect(0, 0, w, h))
 	return &Output{
@@ -26,7 +27,7 @@ func NewOutput(dest io.Writer, w, h int) (*Output, error) {
 	}, nil
 }
 
-// Save writes data to output.
+// Save encodes and writes image data to the output destination.
 func (out *Output) Save(format string) (err error) {
 	switch format {
 	case "gif":

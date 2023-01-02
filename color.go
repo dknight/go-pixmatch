@@ -5,49 +5,49 @@ import (
 	"image/color"
 )
 
-// Color represents color structure and it's components (R)ed, (G)reen,
-// (B)lue, (Alpha). This is similar to color.Color from standard library.
+// Color represents color structure and its components (R)ed, (G)reen,
+// (B)lue, (Alpha). This is similar to color.Color from the standard library.
 type Color struct {
 	R, G, B, A uint32
 }
 
-// NewColor creates new color instance.
+// NewColor creates a new color instance.
 func NewColor(r, g, b, a uint32) *Color {
 	return &Color{r, g, b, a}
 }
 
-// Equals checks colors' equality, that all color's channels are equal.
+// Equals checks colors' equality, ensuring that all color channels are equal.
 func (c Color) Equals(c2 *Color) bool {
 	return c.R == c2.R && c.G == c2.G && c.B == c2.B && c.A == c2.A
 }
 
 // RGBA returns Red, Green, Blue, Alpha channels similar to color.RGBA()
-// from standard library, but always returns values as uint32 type.
+// from the standard library, which always returns values as uint32 type.
 func (c Color) RGBA() (r, g, b, a uint32) {
 	return c.R, c.G, c.B, c.A
 }
 
-// YIQ converts RGB to YIQ color space. See wiki page about YIQ
+// YIQ converts RGB intoto YIQ color space. See the wiki page about YIQ:
 // https://en.wikipedia.org/wiki/YIQ
 func (c Color) YIQ() (float64, float64, float64) {
 	return c.Y(), c.I(), c.Q()
 }
 
-// Y is RBG to Y (brightness) conversion.
+// Y is the RBG to Y (brightness) conversion.
 func (c Color) Y() float64 {
 	return float64(c.R)*0.29889531 +
 		float64(c.G)*0.58662247 +
 		float64(c.B)*0.11448223
 }
 
-// I is RBG to I (chrominance) conversion.
+// I is the RBG to I (chrominance) conversion.
 func (c Color) I() float64 {
 	return float64(c.R)*0.59597799 -
 		float64(c.G)*0.27417610 -
 		float64(c.B)*0.32180189
 }
 
-// Q is RBG to Q (chrominance) conversion.
+// Q is the RBG to Q (chrominance) conversion.
 func (c Color) Q() float64 {
 	return float64(c.R)*0.21147017 -
 		float64(c.G)*0.52261711 +

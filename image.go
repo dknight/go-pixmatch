@@ -14,25 +14,25 @@ import (
 const (
 	// YIQDeltaMax is the value of 35215. This is the maximum possible value
 	// for the YIQ difference metric.
-	// Read about YIQ NTSC https://en.wikipedia.org/wiki/YIQ
+	// Read more about YIQ NTSC https://en.wikipedia.org/wiki/YIQ
 	YIQDeltaMax = 35215
 )
 
-// Image represents the images structure.
+// Image represents the image structure.
 type Image struct {
-	// Path to the image in filesystem.
+	// Path to the image in file system.
 	Path string
 
-	// Format format as string like (png, jpg, gif).
+	// Format as a string like (PNG, JEPG, GIF).
 	Format string
 
-	// Pixel data contains data for colors.
+	// PixData contains data for colors as uint32 numbers.
 	PixData []uint32
 
-	// Rect is as cache for rectangle to avoid extra calculations.
+	// Rect is used as a cache for rectangle to avoid extra calculations.
 	Rect image.Rectangle
 
-	// Image is an embedded image from Go standard library.
+	// Image is an embedded image from the standard library.
 	image.Image
 }
 
@@ -41,7 +41,7 @@ func NewImage() *Image {
 	return &Image{}
 }
 
-// NewImageFromPath creates new images instance from the file system path.
+// NewImageFromPath creates a new image instance from the file system path.
 func NewImageFromPath(path string) (*Image, error) {
 	img := NewImage()
 	img.SetPath(path)
@@ -57,7 +57,7 @@ func NewImageFromPath(path string) (*Image, error) {
 	return img, nil
 }
 
-// SetPath sets the path to the image in filesystem.
+// SetPath sets the path to the image in the file system.
 func (img *Image) SetPath(path string) *Image {
 	img.Path = path
 	return img
@@ -76,7 +76,7 @@ func (img *Image) Load(rd io.Reader) (err error) {
 	return
 }
 
-// Size gets total size of the image in pixels.
+// Size gives the total size of the image in pixels.
 func (img *Image) Size() int {
 	return img.Rect.Dx() * img.Rect.Dy()
 }
@@ -162,7 +162,7 @@ func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 	return diff, nil
 }
 
-// Empty checks that the image is empty or has theoretical size 0x0 pixels.
+// Empty checks that the image is empty or has a theoretical size of 0 pixels.
 func (img *Image) Empty() bool {
 	if img == nil || img.Image == nil {
 		return true
@@ -170,17 +170,16 @@ func (img *Image) Empty() bool {
 	return img.Rect.Empty()
 }
 
-// DimensionsEqual checks that dimensions of the both images are equal.
+// DimensionsEqual checks that the dimensions of the two images are equal.
 func (img *Image) DimensionsEqual(img2 *Image) bool {
 	return img.Rect.Eq(img2.Rect)
 }
 
-// Identical checks that images are identical on bytes level. This means
-// that all bytes of both images are the same.
-// Looks like bytes.Equal() is the fastest way to compare 2 bytes arrays.
+// Identical determines whether or not images are identical at the byte level.
+// This means that all the bytes of both images are the same.
 //
-// Possible ways to compare:
-//  loops - the slowest
+// Alternative possible ways to compare:
+//  loops - the slowest (faster for smaller images)
 //  reflect.DeepEqual() - slower
 //  bytes.Compare() - better
 //  bytes.Equal() - even better
@@ -188,7 +187,7 @@ func (img *Image) Identical(img2 *Image) bool {
 	return bytes.Equal(img.Bytes(), img2.Bytes())
 }
 
-// Bytes get the raw bytes of the pixel data.
+// Bytes are the raw bytes of the pixel data.
 // Reflection is never clear (https://go-proverbs.github.io/)
 func (img *Image) Bytes() []byte {
 	val := reflect.ValueOf(img.Image)
@@ -206,7 +205,7 @@ func (img *Image) Bytes() []byte {
 	return []byte{}
 }
 
-// Stride get generic stride. Default return value is zero (is this OK?).
+// Stride gets the stride from the image. The default value is 1.
 // Reflection is never clear (https://go-proverbs.github.io/)
 func (img *Image) Stride() int {
 	val := reflect.ValueOf(img.Image)
@@ -221,11 +220,12 @@ func (img *Image) Stride() int {
 	if strideY.IsValid() {
 		return int(strideY.Int())
 	}
-	return 0
+	return 1
 }
 
-// Position is the position of the pixel in bytes' array.
+// Position is the position of the pixel in the array of bytes.
 //
+// Formula
 //	(y2-y1)*Stride + (x2-x1)*bpc
 func (img *Image) Position(p image.Point) int {
 	return (p.Y-img.Rect.Min.Y)*img.Stride() +
@@ -253,11 +253,10 @@ func (img *Image) BytesPerColor() int {
 	return 1
 }
 
-// ColorDelta is the squared YUV distance between colors at this pixel's
-// position, returns negative if the img2 pixel is darker and vice versa
-// correspondingly.
-// If argument onlyY is true, the only brightness level will be returned
-// (Y component of YIQ color space).
+// ColorDelta is the squared YUV distance between colors at the pixel's
+// position, returns a negative value if the img2 pixel is darker, and vice
+// versa. If the argument onlyY is true, the only brightness level will be
+// returned (Y component of the YIQ color space).
 func (img *Image) ColorDelta(img2 *Image, m, n int, onlyY bool) float64 {
 	bpc := img.BytesPerColor()
 	px1 := img.PixData
@@ -336,9 +335,9 @@ func (img *Image) ColorDelta(img2 *Image, m, n int, onlyY bool) float64 {
 	return delta
 }
 
-// Uint32 converts image.Bytes() into []uint32 slice.
-// Be careful this might be expensive operation, used once and cached in
-// image.PixData on image load.
+// Uint32 converts image.Bytes() into a []uint32 slice. Be careful; this might
+// be an expensive operation, used once and cached in image.PixData on image
+// loading
 func (img *Image) Uint32() []uint32 {
 	bs := img.Bytes()
 	ui32 := make([]uint32, len(bs))
@@ -348,8 +347,9 @@ func (img *Image) Uint32() []uint32 {
 	return ui32
 }
 
-// Antialiased checks that point is anti-aliased.
-// NOTE most probably the better algorithms are required here.
+// Antialiased checks that the point is anti-aliased.
+//
+// NOTE Probably, better algorithms are required here
 func (img *Image) Antialiased(img2 *Image, pt image.Point) bool {
 	neibrs := 0
 	n := 2
@@ -401,7 +401,7 @@ func (img *Image) Antialiased(img2 *Image, pt image.Point) bool {
 			img2.SameNeighbors(image.Pt(maxX, maxY), n))
 }
 
-// SameNeighbors checks if a pixel has n+ adjacent pixels of the
+// SameNeighbors determines whether a pixel has n+ adjacent pixels that are the
 // same color.
 func (img *Image) SameNeighbors(pt image.Point, n int) bool {
 	neibrs := 0

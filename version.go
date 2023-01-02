@@ -5,12 +5,12 @@ import (
 	"strings"
 )
 
-// Version is extremly simple semantic version structure.
-// Me personally wouldn't like to use external (especially heavy) dependices
-// to manage versions.
+// Version is extremly simple semantic version structure. Personally, I
+// wouldn't like to use external (especially heavy) dependencies to manage
+// versions.
 //
-// For monstonous version management you can check this one
-// https://pkg.go.dev/github.com/hashicorp/go-version
+// Check out https://pkg.go.dev/github.com/hashicorp/go-version for monstrous
+// version management.
 type Version struct {
 	Major uint
 	Minor uint
