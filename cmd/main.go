@@ -1,3 +1,6 @@
+// Command Line Interface (CLI) for pixmatch
+//
+//	go install github.com/dknight/go-pixmatch/cmd@latest
 package main
 
 import (
@@ -49,9 +52,9 @@ func init() {
 		fmt.Fprintln(out, "Colors are in hexadecimal format: (0x)RRGGBBAA.")
 		fmt.Fprintln(out, "Examples:")
 		fmt.Fprintln(out, "\t- ff00ffff")
-		fmt.Fprintln(out, "\t- FF00FFFF")
-		fmt.Fprintln(out, "\t- 0x0000ffff")
-		fmt.Fprintln(out, "\t- 0X00FF00FF")
+		fmt.Fprintln(out, "\t- FF00CCFF")
+		fmt.Fprintln(out, "\t- 0x0033ffff")
+		fmt.Fprintln(out, "\t- 0XAAFF00FF")
 		fmt.Fprintln(out, "Flags:")
 		flag.PrintDefaults()
 	}
@@ -73,7 +76,11 @@ func init() {
 		os.Exit(pixmatch.ExitOk)
 	}
 	argsCount := flag.NArg()
-	if argsCount != 2 {
+	if argsCount == 0 {
+		flag.Usage()
+		os.Exit(pixmatch.ExitOk)
+	}
+	if argsCount < 2 {
 		exitErr(pixmatch.ExitMissingImage, pixmatch.ErrMissingImage)
 	}
 }

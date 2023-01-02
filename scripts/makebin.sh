@@ -17,7 +17,7 @@ if [ "$OS" = "Linux" ]; then
     chmod +x "$BINDIR/$CMDNAME-amd64-linux"
 fi
 
-if [ "$OS" = "Linux" ]; then
+if [ "$OS" = "Darwin" ]; then
     chmod +x "$BINDIR/$CMDNAME-amd64-darwin"
     chmod +x "$BINDIR/$CMDNAME-arm64-darwin"
 fi

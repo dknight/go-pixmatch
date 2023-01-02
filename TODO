@@ -1,11 +1,14 @@
 Read and try to resolve issues in original pixel match.
 Make optimizations, more more and more...
 
-Write README.md
+Read about go generate.
+
+Replace kitten picture with CC License
+Replace forest picture with CC License
 Find good pictures for examples GIF JPG PNG
+Write README.md
 
-Make CLI
-
++ Make CLI
 + Write examples
 + Write docs
 + Write test pairs
