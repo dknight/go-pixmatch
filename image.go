@@ -139,12 +139,10 @@ func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 						diff++
 						mu.Unlock()
 					}
-				} else if opts.Output != nil {
-					if !opts.DiffMask {
-						r, g, b, a := img.At(x, y).RGBA()
-						gray := NewColor(r, g, b, a).BlendToGray(opts.Alpha)
-						opts.Output.Image.Set(x, y, gray)
-					}
+				} else if opts.Output != nil && !opts.DiffMask {
+					r, g, b, a := img.At(x, y).RGBA()
+					gray := NewColor(r, g, b, a).BlendToGray(opts.Alpha)
+					opts.Output.Image.Set(x, y, gray)
 				}
 			}
 			wg.Done()
