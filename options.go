@@ -7,11 +7,16 @@ import (
 
 // Options is the structure that stores the settings for common comparisons.
 type Options struct {
+	// Output is stucture where final image will be written.
+	Output io.Writer
+
 	// Threshold is the threshold of the maximum color delta.
 	// Values range [0, 1.0].
 	Threshold float64
 
 	// Alpha is the alpha channel factor (multiplier). Values range [0, 1.0].
+	// NOTE it is interesting to experiment with overflow and underflow
+	// ranges.
 	Alpha float64
 
 	// IncludeAA sets anti-aliasing pixels as difference counts.
@@ -31,13 +36,11 @@ type Options struct {
 	// DiffMask sets to use mask, renders the differences without the original
 	// image.
 	DiffMask bool
-
-	// Output is stucture where final image will be written.
-	Output io.Writer
 }
 
 // defaultOptions are just default options.
 var defaultOptions = Options{
+	Output:       nil,
 	Threshold:    0.1,
 	Alpha:        0.1,
 	IncludeAA:    false,
@@ -45,7 +48,6 @@ var defaultOptions = Options{
 	DiffColor:    color.RGBA{255, 0, 0, 255},
 	DiffColorAlt: nil,
 	DiffMask:     false,
-	Output:       nil,
 }
 
 // NewOptions creates a new Options instance. It is possible to use
@@ -53,6 +55,7 @@ var defaultOptions = Options{
 // dependencies whenever possible.
 func NewOptions() *Options {
 	return &Options{
+		Output:       defaultOptions.Output,
 		Threshold:    defaultOptions.Threshold,
 		Alpha:        defaultOptions.Alpha,
 		IncludeAA:    defaultOptions.IncludeAA,
@@ -60,8 +63,13 @@ func NewOptions() *Options {
 		DiffColor:    defaultOptions.DiffColor,
 		DiffColorAlt: defaultOptions.DiffColorAlt,
 		DiffMask:     defaultOptions.DiffMask,
-		Output:       defaultOptions.Output,
 	}
+}
+
+// SetOutput sets the output as pointer to the options.
+func (opts *Options) SetOutput(v io.Writer) *Options {
+	opts.Output = v
+	return opts
 }
 
 // SetThreshold sets threshold to the options.
@@ -104,11 +112,5 @@ func (opts *Options) SetDiffColorAlt(v color.Color) *Options {
 // SetDiffMask sets difference mask to the options.
 func (opts *Options) SetDiffMask(v bool) *Options {
 	opts.DiffMask = v
-	return opts
-}
-
-// SetOutput sets the output as pointer to the options.
-func (opts *Options) SetOutput(v io.Writer) *Options {
-	opts.Output = v
 	return opts
 }

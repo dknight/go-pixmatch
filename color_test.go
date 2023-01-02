@@ -1,6 +1,7 @@
 package pixmatch
 
 import (
+	"image/color"
 	"reflect"
 	"testing"
 )
@@ -58,5 +59,34 @@ func TestString(t *testing.T) {
 	res := color.String()
 	if want != res {
 		t.Errorf("Expected %v got %v", want, res)
+	}
+}
+
+func TestHexStringToColor(t *testing.T) {
+	pairs := map[string]*color.RGBA{
+		"ff00ff00":   &color.RGBA{255, 0, 255, 0},
+		"0Xff00ff01": &color.RGBA{255, 0, 255, 1},
+		"0xFF00FF0F": &color.RGBA{255, 0, 255, 15},
+		"0xFF7FFEFF": &color.RGBA{255, 127, 254, 255},
+	}
+	for hex, color := range pairs {
+		res, err := HexStringToColor(hex)
+		if err != nil {
+			t.Error(err)
+		}
+		if *res != *color {
+			t.Errorf("Expected %v got %v", *color, *res)
+		}
+	}
+
+	invalids := map[string]*color.RGBA{
+		"ffff0":    &color.RGBA{255, 0, 255, 0},
+		"ff0yff00": &color.RGBA{255, 0, 255, 0},
+	}
+	for hex := range invalids {
+		_, err := HexStringToColor(hex)
+		if err == nil {
+			t.Error("Expected to be invalid, but valid. Failed!")
+		}
 	}
 }

@@ -1,8 +1,10 @@
 package pixmatch
 
 import (
+	"encoding/hex"
 	"fmt"
 	"image/color"
+	"strings"
 )
 
 // Color represents color structure and its components (R)ed, (G)reen,
@@ -71,6 +73,28 @@ func (c Color) BlendToGray(a float64) color.Color {
 		gray = 255
 	}
 	return color.RGBA{gray, gray, gray, 255}
+}
+
+// HexStringToColor converts hexadecimal string RRGGBBAA of color
+// representation to color.RGBA. Input string are case-insensitive.
+// Also strings can be prefixed with '0x' or '0X'.
+//
+// Examples values are:
+//   - FF000099
+//   - ff00ff00
+//   - 0xff00ff00
+//   - #ffFF00ff00
+func HexStringToColor(hexstr string) (*color.RGBA, error) {
+	s := strings.ToUpper(hexstr)
+	s = strings.TrimPrefix(s, "0X")
+	if len(s) != 8 {
+		return nil, ErrInvalidColorFormat
+	}
+	bs, err := hex.DecodeString(s)
+	if err != nil {
+		return nil, err
+	}
+	return &color.RGBA{bs[0], bs[1], bs[2], bs[3]}, nil
 }
 
 func (c Color) String() string {

@@ -27,3 +27,8 @@ func (v Version) String() string {
 	}
 	return builder.String()
 }
+
+// GetVersion gets current version of pixmatch.
+func GetVersion() string {
+	return Version{0, 0, 1, "alpha"}.String()
+}
