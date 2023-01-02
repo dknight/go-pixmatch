@@ -12,7 +12,7 @@ import (
 )
 
 // false is only for debugging purposes.
-var removeDiffImages = false
+var removeDiffImages = true
 
 func TestNewImage(t *testing.T) {
 	img := NewImage(10, 10, DefaultFormat)
