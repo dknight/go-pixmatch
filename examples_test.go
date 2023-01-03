@@ -27,7 +27,7 @@ func Example() {
 	}
 
 	fmt.Println(diff)
-	// Output: 27558
+	// Output: 4933
 }
 
 func ExampleImage_Compare() {
@@ -39,7 +39,7 @@ func ExampleImage_Compare() {
 	diff, _ := img1.Compare(img2, options)
 
 	fmt.Println(diff)
-	// Output: 11804
+	// Output: 1626
 }
 
 func ExampleImage_DimensionsEqual() {
@@ -69,5 +69,5 @@ func ExampleImage_Size() {
 	img, _ := NewImageFromPath("./samples/form-a.png")
 	samplesult := img.Size()
 	fmt.Println(samplesult)
-	// Output: 348696
+	// Output: 51200
 }

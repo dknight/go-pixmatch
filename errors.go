@@ -29,8 +29,9 @@ var (
 	ErrMissingImage = errors.New("One or both images are missing")
 )
 
-// Exit codes that are not defined in the BSD and Linux specifications
-// https://freedesktop.org/software/systemd/man/systemd.exec.html#Process%20Exit%20Codes
+// Exit codes that are not defined in the [BSD and Linux specifications].
+//
+// [BSD and Linux specifications]: https://freedesktop.org/software/systemd/man/systemd.exec.html#Process%20Exit%20Codes
 const (
 	// ExitOk when the program exited successfully.
 	ExitOk = 0

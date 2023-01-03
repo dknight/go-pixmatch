@@ -11,8 +11,14 @@ import (
 	"testing"
 )
 
-// false is only for debugging purposes.
-var removeDiffImages = false
+// Set env variable UPDATEDIFFS=1 to update test samples.
+var updateDiffImages bool
+
+func init() {
+	if _, ok := os.LookupEnv("UPDATEDIFFS"); ok {
+		updateDiffImages = true
+	}
+}
 
 func TestNewImage(t *testing.T) {
 	img := NewImage(10, 10, DefaultFormat)
@@ -184,7 +190,7 @@ func TestPosition(t *testing.T) {
 	}
 	point := image.Point{50, 50}
 	samples := img.Position(point)
-	want := 104600
+	want := 40200
 	if samples != want {
 		t.Errorf("Expected %v got %v", want, samples)
 	}
@@ -240,9 +246,9 @@ func TestColorDelta(t *testing.T) {
 	}
 
 	pairs := map[image.Point]float64{
-		image.Point{45, 35}:   -527.2533417228238,
+		image.Point{35, 140}:  8097.090700072483,
 		image.Point{50, 15}:   0,
-		image.Point{105, 565}: 15971.783927855862,
+		image.Point{105, 105}: -30.08278788879798,
 	}
 
 	for pt, want := range pairs {
@@ -254,9 +260,9 @@ func TestColorDelta(t *testing.T) {
 	}
 
 	// Only Y (brigthness) component.
-	pos := images[0].Position(image.Point{40, 520})
+	pos := images[0].Position(image.Point{40, 220})
 	samples := images[0].ColorDelta(images[1], pos, pos, true)
-	want := 0.298895310000006
+	want := 7.784791640000009
 	if samples != want {
 		t.Errorf("Expected %v got %v", want, samples)
 	}
@@ -265,12 +271,12 @@ func TestColorDelta(t *testing.T) {
 func TestSameNeighbors(t *testing.T) {
 	img, _ := NewImageFromPath("./samples/form-a.png")
 	pairs := map[image.Point]bool{
-		image.Point{71, 30}:  true,
-		image.Point{105, 67}: true,
+		image.Point{33, 218}: true,
+		image.Point{107, 68}: false,
 		image.Point{13, 72}:  true,
 		image.Point{17, 72}:  true,
 		image.Point{6, 70}:   true,
-		image.Point{81, 174}: false,
+		image.Point{68, 119}: false,
 	}
 
 	for pt, want := range pairs {
@@ -286,7 +292,7 @@ func TestAntialiased(t *testing.T) {
 	pairs := map[image.Point]bool{
 		image.Point{0, 0}:    false,
 		image.Point{50, 50}:  false,
-		image.Point{42, 267}: true,
+		image.Point{42, 127}: true,
 	}
 
 	for pt, want := range pairs {
@@ -297,7 +303,7 @@ func TestAntialiased(t *testing.T) {
 	}
 }
 
-// -------------------------- PAIRS --------------------------------------
+// ---------------------------- PAIRS ------------------------------------
 
 type testPair struct {
 	name         string
@@ -314,7 +320,7 @@ var testPairs = []testPair{
 		name:         "PNG+GRAY8",
 		pathA:        "./samples/gray8-a.png",
 		pathB:        "./samples/gray8-b.png",
-		pathDiff:     "diff-gray8.png",
+		pathDiff:     "./samples/gray8-diff.png",
 		expectedDiff: 4,
 		skip:         false,
 		options:      NewOptions().SetIncludeAA(true),
@@ -323,7 +329,7 @@ var testPairs = []testPair{
 		name:         "PNG+GRAY16",
 		pathA:        "./samples/gray16-a.png",
 		pathB:        "./samples/gray16-b.png",
-		pathDiff:     "diff-gray16.png",
+		pathDiff:     "./samples/gray16-diff.png",
 		expectedDiff: 15,
 		skip:         false,
 		options:      NewOptions().SetIncludeAA(true),
@@ -332,8 +338,8 @@ var testPairs = []testPair{
 		name:         "PNG+Alpha",
 		pathA:        "./samples/form-a.png",
 		pathB:        "./samples/form-b.png",
-		pathDiff:     "diff-form.png",
-		expectedDiff: 16776,
+		pathDiff:     "./samples/form-diff.png",
+		expectedDiff: 2909,
 		skip:         false,
 		options:      NewOptions(),
 	},
@@ -341,8 +347,8 @@ var testPairs = []testPair{
 		name:         "PNG+Alpha+Anti-aliasing",
 		pathA:        "./samples/form-a.png",
 		pathB:        "./samples/form-b.png",
-		pathDiff:     "diff-form-aa.png",
-		expectedDiff: 23423,
+		pathDiff:     "./samples/form-aa-diff.png",
+		expectedDiff: 3864,
 		skip:         false,
 		options:      NewOptions().SetIncludeAA(true),
 	},
@@ -350,25 +356,25 @@ var testPairs = []testPair{
 		name:         "GIF",
 		pathA:        "./samples/landscape-a.gif",
 		pathB:        "./samples/landscape-b.gif",
-		pathDiff:     "diff-landscape.gif",
+		pathDiff:     "./samples/landscape-diff.gif",
 		expectedDiff: 5897,
 		skip:         false,
-		options:      NewOptions().SetThreshold(0.05).SetIncludeAA(true),
+		options:      NewOptions().SetAlpha(.5).SetThreshold(0.05).SetIncludeAA(true),
 	},
 	testPair{
 		name:         "JPEG",
 		pathA:        "./samples/bird-a.jpg",
 		pathB:        "./samples/bird-b.jpg",
-		pathDiff:     "diff-bird.jpg",
+		pathDiff:     "./samples/bird-diff.jpg",
 		expectedDiff: 1102,
 		skip:         false,
-		options:      NewOptions().SetAlpha(.8),
+		options:      NewOptions().SetAlpha(.5),
 	},
 	testPair{
 		name:         "pixelmatch.js_100",
 		pathA:        "./samples/original/1a.png",
 		pathB:        "./samples/original/1b.png",
-		pathDiff:     "./samples/original/1diff~.png",
+		pathDiff:     "./samples/original/1diff.png",
 		expectedDiff: 143,
 		skip:         false,
 		options:      NewOptions().SetThreshold(.05),
@@ -377,7 +383,7 @@ var testPairs = []testPair{
 		name:         "pixelmatch.js_101",
 		pathA:        "./samples/original/1a.png",
 		pathB:        "./samples/original/1b.png",
-		pathDiff:     "./samples/original/1diffmask~.png",
+		pathDiff:     "./samples/original/1diffmask.png",
 		expectedDiff: 143,
 		skip:         false,
 		options:      NewOptions().SetThreshold(.05).SetDiffMask(true),
@@ -386,7 +392,7 @@ var testPairs = []testPair{
 		name:         "pixelmatch.js_102",
 		pathA:        "./samples/original/1a.png",
 		pathB:        "./samples/original/1b.png",
-		pathDiff:     "./samples/original/1emptydiffmask~.png",
+		pathDiff:     "./samples/original/1emptydiffmask.png",
 		expectedDiff: 0,
 		skip:         false,
 		options:      NewOptions().SetThreshold(1).SetDiffMask(true),
@@ -395,16 +401,16 @@ var testPairs = []testPair{
 		name:         "pixelmatch.js_200",
 		pathA:        "./samples/original/2a.png",
 		pathB:        "./samples/original/2b.png",
-		pathDiff:     "./samples/original/2diff~.png",
+		pathDiff:     "./samples/original/2diff.png",
 		expectedDiff: 12437,
 		skip:         false,
-		options:      NewOptions().SetThreshold(.05).SetAlpha(.5).SetAAColor(color.RGBA{0, 192, 0, 255}).SetDiffColor(color.RGBA{255, 0, 255, 255}),
+		options:      NewOptions().SetThreshold(.05).SetAlpha(.5).SetAAColor(color.RGBA{0, 0xc0, 0, 0xff}).SetDiffColor(color.RGBA{0xff, 0, 0xff, 0xff}),
 	},
 	testPair{
 		name:         "pixelmatch.js_300",
 		pathA:        "./samples/original/3a.png",
 		pathB:        "./samples/original/3b.png",
-		pathDiff:     "./samples/original/3diff~.png",
+		pathDiff:     "./samples/original/3diff.png",
 		expectedDiff: 212,
 		skip:         false,
 		options:      NewOptions().SetThreshold(.05),
@@ -413,7 +419,7 @@ var testPairs = []testPair{
 		name:         "pixelmatch.js_400",
 		pathA:        "./samples/original/4a.png",
 		pathB:        "./samples/original/4b.png",
-		pathDiff:     "./samples/original/4diff~.png",
+		pathDiff:     "./samples/original/4diff.png",
 		expectedDiff: 36049,
 		skip:         false,
 		options:      NewOptions().SetThreshold(.05),
@@ -422,7 +428,7 @@ var testPairs = []testPair{
 		name:         "pixelmatch.js_500",
 		pathA:        "./samples/original/5a.png",
 		pathB:        "./samples/original/5b.png",
-		pathDiff:     "./samples/original/5diff~.png",
+		pathDiff:     "./samples/original/5diff.png",
 		expectedDiff: 0, // 0 because no AA included
 		skip:         false,
 		options:      NewOptions().SetThreshold(.05),
@@ -431,7 +437,7 @@ var testPairs = []testPair{
 		name:         "pixelmatch.js_600",
 		pathA:        "./samples/original/6a.png",
 		pathB:        "./samples/original/6b.png",
-		pathDiff:     "./samples/original/6diff~.png",
+		pathDiff:     "./samples/original/6diff.png",
 		expectedDiff: 51,
 		skip:         false,
 		options:      NewOptions().SetThreshold(.05),
@@ -440,7 +446,7 @@ var testPairs = []testPair{
 		name:         "pixelmatch.js_601",
 		pathA:        "./samples/original/6a.png",
 		pathB:        "./samples/original/6b.png",
-		pathDiff:     "./samples/original/6empty~.png",
+		pathDiff:     "./samples/original/6empty.png",
 		expectedDiff: 0,
 		skip:         false,
 		options:      NewOptions().SetThreshold(1.0),
@@ -449,10 +455,10 @@ var testPairs = []testPair{
 		name:         "pixelmatch.js_700",
 		pathA:        "./samples/original/7a.png",
 		pathB:        "./samples/original/7b.png",
-		pathDiff:     "./samples/original/7diff~.png",
+		pathDiff:     "./samples/original/7diff.png",
 		expectedDiff: 2448,
 		skip:         false,
-		options:      NewOptions().SetDiffColorAlt(color.RGBA{0, 255, 0, 255}),
+		options:      NewOptions().SetDiffColorAlt(color.RGBA{0, 0xff, 0, 0xff}),
 	},
 }
 
@@ -462,11 +468,6 @@ func TestImageCompare(t *testing.T) {
 			if pair.skip {
 				t.SkipNow()
 			}
-			t.Cleanup(func() {
-				if removeDiffImages {
-					os.Remove(pair.pathDiff)
-				}
-			})
 			imageA, err := NewImageFromPath(pair.pathA)
 			if err != nil {
 				t.Error(err)
@@ -475,11 +476,13 @@ func TestImageCompare(t *testing.T) {
 			if err != nil {
 				t.Error(err)
 			}
-			fp, err := os.Create(pair.pathDiff)
-			if err != nil {
-				t.Error(err)
+			if updateDiffImages {
+				fp, err := os.Create(pair.pathDiff)
+				if err != nil {
+					t.Error(err)
+				}
+				pair.options.SetOutput(fp)
 			}
-			pair.options.SetOutput(fp)
 			diff, err := imageA.Compare(imageB, pair.options)
 			if err != nil {
 				t.Error(err.Error())

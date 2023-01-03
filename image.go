@@ -41,7 +41,7 @@ type Image struct {
 	// PixData contains data for colors as uint32 numbers.
 	PixData []uint32
 
-	// Image is an embedded image from the standard library.
+	// Image is an embedded [image.Image] from the standard library.
 	image.Image
 }
 
@@ -100,7 +100,8 @@ func (img *Image) Size() int {
 }
 
 // Compare returns the number of different pixels between two comparable
-// images.
+// images. Zero is returned if no difference found or if something went wrong
+// but in the second case error also returned.
 func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 	if opts == nil {
 		opts = NewOptions()
@@ -170,10 +171,11 @@ func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 
 	wg.Wait()
 
+	// If no output given or there is no difference do not create diff file.
 	if opts.Output != nil {
 		err := output.Save(opts.Output)
 		if err != nil {
-			return -1, err
+			return 0, err
 		}
 	}
 	return diff, nil
@@ -344,12 +346,12 @@ func (img *Image) ColorDelta(img2 *Image, m, n int, onlyY bool) float64 {
 		return 0
 	}
 
-	if color1.A < 255 {
-		color1 = color1.Blend(float64(color1.A) / 255.0)
+	if color1.A < 0xff {
+		color1 = color1.Blend(float64(color1.A) / 0xff)
 	}
 
-	if color2.A < 255 {
-		color2 = color2.Blend(float64(color2.A) / 255.0)
+	if color2.A < 0xff {
+		color2 = color2.Blend(float64(color2.A) / 0xff)
 	}
 
 	y1, y2 := color1.Y(), color2.Y()
@@ -382,7 +384,7 @@ func (img *Image) Uint32() []uint32 {
 
 // Antialiased checks that the point is anti-aliased.
 //
-// NOTE Probably, better algorithms are required here
+// NOTE Probably, better algorithms are required here.
 func (img *Image) Antialiased(img2 *Image, pt image.Point) bool {
 	neibrs := 0
 	n := 2
@@ -434,8 +436,8 @@ func (img *Image) Antialiased(img2 *Image, pt image.Point) bool {
 			img2.SameNeighbors(image.Pt(maxX, maxY), n))
 }
 
-// SameNeighbors determines whether a pixel has n+ adjacent pixels that are the
-// same color.
+// SameNeighbors determines whether a pixel has n+ adjacent pixels that are
+// the same color.
 func (img *Image) SameNeighbors(pt image.Point, n int) bool {
 	neibrs := 0
 	x1 := intMax(pt.X-1, img.Bounds().Min.X)

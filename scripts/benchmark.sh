@@ -4,7 +4,7 @@
 # Later it is easier to analyze it with benchstat tool.
 
 if [ -z $1 ]; then
-    echo "No output filename given."
+    echo "No output file name given."
     exit 1
 fi
 

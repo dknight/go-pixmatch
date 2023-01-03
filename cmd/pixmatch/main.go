@@ -164,9 +164,9 @@ func main() {
 
 	if percent {
 		pct := float64(px) / float64(images[0].Size()) * 100
-		fmt.Fprintf(os.Stdout, "%.2f%%", pct)
+		fmt.Fprintf(os.Stdout, "%.2f%%\n", pct)
 	} else {
-		fmt.Fprintf(os.Stdout, "%d", px)
+		fmt.Fprintf(os.Stdout, "%d\n", px)
 	}
 }
 

@@ -8,7 +8,8 @@ import (
 )
 
 // Color represents color structure and its components (R)ed, (G)reen,
-// (B)lue, (Alpha). This is similar to color.Color from the standard library.
+// (B)lue, (Alpha). This is similar to [image/color.Color] from the standard
+// library.
 type Color struct {
 	R, G, B, A uint32
 }
@@ -23,8 +24,9 @@ func (c Color) Equals(c2 *Color) bool {
 	return c.R == c2.R && c.G == c2.G && c.B == c2.B && c.A == c2.A
 }
 
-// RGBA returns Red, Green, Blue, Alpha channels similar to color.RGBA()
-// from the standard library, which always returns values as uint32 type.
+// RGBA returns Red, Green, Blue, Alpha channels similar to
+// [image/color.RGBA] from the standard library, which always returns
+// values as uint32 type.
 func (c Color) RGBA() (r, g, b, a uint32) {
 	return c.R, c.G, c.B, c.A
 }
@@ -59,24 +61,24 @@ func (c Color) Q() float64 {
 // Blend is the procedure of blending the color with the alpha factor is
 // known as blending.
 func (c Color) Blend(a float64) *Color {
-	r := 255 - float64(c.R)*a
-	g := 255 - float64(c.G)*a
-	b := 255 - float64(c.B)*a
+	r := 0xff - float64(c.R)*a
+	g := 0xff - float64(c.G)*a
+	b := 0xff - float64(c.B)*a
 	return NewColor(uint32(r), uint32(g), uint32(b), c.A)
 }
 
 // BlendToGray draws gray-scaled color with gray-scaled blending.
 func (c Color) BlendToGray(a float64) color.Color {
 	y := uint32(c.Y()) >> 8
-	gray := uint8(255 + (float64(y)-255)*a)
+	gray := uint8(0xff + (float64(y)-0xff)*a)
 	if c.A == 0 {
-		gray = 255
+		gray = 0xff
 	}
-	return color.RGBA{gray, gray, gray, 255}
+	return color.RGBA{gray, gray, gray, 0xff}
 }
 
 // HexStringToColor converts hexadecimal string RRGGBBAA of color
-// representation to color.RGBA. Input string are case-insensitive.
+// representation to [image/color.RGBA]. Input string are case-insensitive.
 // Also strings can be prefixed with '0x' or '0X'.
 //
 // Examples values are:

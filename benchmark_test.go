@@ -103,8 +103,8 @@ func BenchmarkCompare_DifferentJPEG(b *testing.B) {
 
 func BenchmarkCompare_DifferentAA(b *testing.B) {
 	paths := []string{
-		"./samples/aa-a.png",
-		"./samples/aa-b.png",
+		"./samples/form-a.png",
+		"./samples/form-b.png",
 	}
 	images := make([]*Image, 0, len(paths))
 	for _, p := range paths {
@@ -113,7 +113,7 @@ func BenchmarkCompare_DifferentAA(b *testing.B) {
 	}
 	b.ResetTimer()
 
-	benchOpts.IncludeAA = true
+	benchOpts.SetIncludeAA(true)
 	for i := 0; i < b.N; i++ {
 		images[0].Compare(images[1], benchOpts)
 	}
