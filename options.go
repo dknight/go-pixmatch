@@ -44,8 +44,8 @@ var defaultOptions = Options{
 	Threshold:    0.1,
 	Alpha:        0.1,
 	IncludeAA:    false,
-	AAColor:      color.RGBA{255, 255, 0, 255},
-	DiffColor:    color.RGBA{255, 0, 0, 255},
+	AAColor:      color.RGBA{0xff, 0xff, 0, 0xff},
+	DiffColor:    color.RGBA{0xff, 0, 0, 0xff},
 	DiffColorAlt: nil,
 	DiffMask:     false,
 }

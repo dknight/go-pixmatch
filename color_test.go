@@ -17,7 +17,7 @@ func TestNewColor(t *testing.T) {
 }
 
 func TestColorRGBA(t *testing.T) {
-	c := NewColor(0, 255, 255, 0)
+	c := NewColor(0, 0xff, 0xff, 0)
 	r, g, b, a := c.RGBA()
 	want := []uint32{r, g, b, a}
 	if r != c.R || g != c.G || b != c.B || a != c.A {
@@ -26,9 +26,9 @@ func TestColorRGBA(t *testing.T) {
 }
 
 func TestColorEquals(t *testing.T) {
-	c1 := NewColor(0, 255, 255, 0)
-	c2 := NewColor(0, 255, 255, 0)
-	c3 := NewColor(0, 1, 244, 213)
+	c1 := NewColor(0, 0xff, 0xff, 0)
+	c2 := NewColor(0, 0xff, 0xff, 0)
+	c3 := NewColor(0xff, 0, 0, 0xff)
 
 	want := true
 	res := c1.Equals(c2)
@@ -64,10 +64,10 @@ func TestString(t *testing.T) {
 
 func TestHexStringToColor(t *testing.T) {
 	pairs := map[string]*color.RGBA{
-		"ff00ff00":   &color.RGBA{255, 0, 255, 0},
-		"0Xff00ff01": &color.RGBA{255, 0, 255, 1},
-		"0xFF00FF0F": &color.RGBA{255, 0, 255, 15},
-		"0xFF7FFEFF": &color.RGBA{255, 127, 254, 255},
+		"ff00ff00":   &color.RGBA{0xff, 0, 0xff, 0},
+		"0Xff00ff01": &color.RGBA{0xff, 0, 0xff, 0x1},
+		"0xFF00FF0F": &color.RGBA{0xff, 0, 0xff, 0xf},
+		"0xFF7FFEFF": &color.RGBA{0xff, 0x7f, 0xfe, 0xff},
 	}
 	for hex, color := range pairs {
 		res, err := HexStringToColor(hex)
@@ -80,8 +80,8 @@ func TestHexStringToColor(t *testing.T) {
 	}
 
 	invalids := map[string]*color.RGBA{
-		"ffff0":    &color.RGBA{255, 0, 255, 0},
-		"ff0yff00": &color.RGBA{255, 0, 255, 0},
+		"ffff0":    &color.RGBA{0xff, 0, 0xff, 0},
+		"ff0yff00": &color.RGBA{0xff, 0, 0xff, 0},
 	}
 	for hex := range invalids {
 		_, err := HexStringToColor(hex)

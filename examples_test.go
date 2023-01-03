@@ -18,7 +18,7 @@ func Example() {
 	options := NewOptions()
 	options.SetThreshold(0.05)
 	options.SetAlpha(0.5)
-	options.SetDiffColor(color.RGBA{0, 255, 128, 255})
+	options.SetDiffColor(color.RGBA{0, 255, 127, 255})
 	// etc...
 
 	diff, err := img1.Compare(img2, options)
