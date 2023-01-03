@@ -7,11 +7,11 @@ import (
 )
 
 func Example() {
-	img1, err := NewImageFromPath("./res/kitten-a.png")
+	img1, err := NewImageFromPath("./samples/form-a.png")
 	if err != nil {
 		log.Fatalln(err)
 	}
-	img2, err := NewImageFromPath("./res/kitten-b.png")
+	img2, err := NewImageFromPath("./samples/form-b.png")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -27,47 +27,47 @@ func Example() {
 	}
 
 	fmt.Println(diff)
-	// Output: 1723
+	// Output: 27558
 }
 
 func ExampleImage_Compare() {
 	options := NewOptions()
 	options.SetThreshold(0.25)
 
-	img1, _ := NewImageFromPath("./res/kitten-a.png")
-	img2, _ := NewImageFromPath("./res/kitten-b.png")
+	img1, _ := NewImageFromPath("./samples/form-a.png")
+	img2, _ := NewImageFromPath("./samples/form-b.png")
 	diff, _ := img1.Compare(img2, options)
 
 	fmt.Println(diff)
-	// Output: 1563
+	// Output: 11804
 }
 
 func ExampleImage_DimensionsEqual() {
-	img1, _ := NewImageFromPath("./res/kitten-a.png")
-	img2, _ := NewImageFromPath("./res/kitten-c-small.png")
-	result := img1.DimensionsEqual(img2)
-	fmt.Println(result)
+	img1, _ := NewImageFromPath("./samples/bird-a.jpg")
+	img2, _ := NewImageFromPath("./samples/bird-c-small.jpg")
+	samplesult := img1.DimensionsEqual(img2)
+	fmt.Println(samplesult)
 	// Output: false
 }
 
 func ExampleImage_Empty() {
-	img, _ := NewImageFromPath("./res/kitten-a.png")
-	result := img.Empty()
-	fmt.Println(result)
+	img, _ := NewImageFromPath("./samples/form-a.png")
+	samplesult := img.Empty()
+	fmt.Println(samplesult)
 	// Output: false
 }
 
 func ExampleImage_Identical() {
-	img1, _ := NewImageFromPath("./res/kitten-a.png")
-	img2, _ := NewImageFromPath("./res/kitten-a.png")
-	result := img1.Identical(img2)
-	fmt.Println(result)
+	img1, _ := NewImageFromPath("./samples/form-a.png")
+	img2, _ := NewImageFromPath("./samples/form-a.png")
+	samplesult := img1.Identical(img2)
+	fmt.Println(samplesult)
 	// Output: true
 }
 
 func ExampleImage_Size() {
-	img, _ := NewImageFromPath("./res/kitten-a.png")
-	result := img.Size()
-	fmt.Println(result)
-	// Output: 10000
+	img, _ := NewImageFromPath("./samples/form-a.png")
+	samplesult := img.Size()
+	fmt.Println(samplesult)
+	// Output: 348696
 }

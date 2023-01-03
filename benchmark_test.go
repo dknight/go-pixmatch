@@ -18,8 +18,8 @@ func BenchmarkCompare_Empty(b *testing.B) {
 
 func BenchmarkCompare_Dimensions(b *testing.B) {
 	paths := []string{
-		"./res/kitten-c-small.png",
-		"./res/kitten-b.png",
+		"./samples/bird-c-small.jpg",
+		"./samples/bird-b.jpg",
 	}
 	images := make([]*Image, 0, len(paths))
 	for _, p := range paths {
@@ -35,8 +35,8 @@ func BenchmarkCompare_Dimensions(b *testing.B) {
 
 func BenchmarkCompare_Identical(b *testing.B) {
 	paths := []string{
-		"./res/kitten-b.png",
-		"./res/kitten-b.png",
+		"./samples/form-b.png",
+		"./samples/form-b.png",
 	}
 	images := make([]*Image, 0, len(paths))
 	for _, p := range paths {
@@ -52,8 +52,8 @@ func BenchmarkCompare_Identical(b *testing.B) {
 
 func BenchmarkCompare_DifferentPNG(b *testing.B) {
 	paths := []string{
-		"./res/kitten-a.png",
-		"./res/kitten-b.png",
+		"./samples/form-a.png",
+		"./samples/form-b.png",
 	}
 	images := make([]*Image, 0, len(paths))
 	for _, p := range paths {
@@ -69,8 +69,8 @@ func BenchmarkCompare_DifferentPNG(b *testing.B) {
 
 func BenchmarkCompare_DifferentGIF(b *testing.B) {
 	paths := []string{
-		"./res/landscape-a.gif",
-		"./res/landscape-b.gif",
+		"./samples/landscape-a.gif",
+		"./samples/landscape-b.gif",
 	}
 	images := make([]*Image, 0, len(paths))
 	for _, p := range paths {
@@ -86,8 +86,8 @@ func BenchmarkCompare_DifferentGIF(b *testing.B) {
 
 func BenchmarkCompare_DifferentJPEG(b *testing.B) {
 	paths := []string{
-		"./res/forest-a.jpg",
-		"./res/forest-b.jpg",
+		"./samples/bird-a.jpg",
+		"./samples/bird-b.jpg",
 	}
 	images := make([]*Image, 0, len(paths))
 	for _, p := range paths {
@@ -103,8 +103,8 @@ func BenchmarkCompare_DifferentJPEG(b *testing.B) {
 
 func BenchmarkCompare_DifferentAA(b *testing.B) {
 	paths := []string{
-		"./res/aa-a.png",
-		"./res/aa-b.png",
+		"./samples/aa-a.png",
+		"./samples/aa-b.png",
 	}
 	images := make([]*Image, 0, len(paths))
 	for _, p := range paths {
