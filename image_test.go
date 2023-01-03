@@ -12,7 +12,7 @@ import (
 )
 
 // false is only for debugging purposes.
-var removeDiffImages = true
+var removeDiffImages = false
 
 func TestNewImage(t *testing.T) {
 	img := NewImage(10, 10, DefaultFormat)
@@ -365,10 +365,10 @@ var testPairs = []testPair{
 	},
 	testPair{
 		name:         "GIF",
-		pathA:        "./res/abigail-a.gif",
-		pathB:        "./res/abigail-b.gif",
-		pathDiff:     "diff-abigail.gif",
-		expectedDiff: 114,
+		pathA:        "./res/landscape-a.gif",
+		pathB:        "./res/landscape-b.gif",
+		pathDiff:     "diff-landscape.gif",
+		expectedDiff: 5635,
 		skip:         false,
 		options:      NewOptions().SetIncludeAA(true),
 	},

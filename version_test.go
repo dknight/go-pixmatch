@@ -13,7 +13,7 @@ func TestGetVersion(t *testing.T) {
 	}
 
 	v = Version{0, 0, 1, "alpha"}
-	want = "0.0.1-alpha"
+	want = "0.0.1-alpha-4"
 	res = GetVersion()
 	if want != res {
 		t.Errorf("Expected %v got %v", want, res)

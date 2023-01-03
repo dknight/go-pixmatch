@@ -16,9 +16,6 @@
 
 To provide 100% compatibility with [pixelmatch](https://github.com/mapbox/pixelmatch) original test files are borrowed from [fixtures](https://github.com/mapbox/pixelmatch/tree/main/test/fixtures).
 
-Pixel art GIF picture of Abigail is taken from
-[Oldschool Workshop](http://adythewolf-play.blogspot.com/) by adythewolf.
-
 Pixel art girl is drawn by *somebody* on the [pixilart](https://www.pixilart.com/draw/16x16-6ec491154b5c687).
 
 ## Contribution

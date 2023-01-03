@@ -69,8 +69,8 @@ func BenchmarkCompare_DifferentPNG(b *testing.B) {
 
 func BenchmarkCompare_DifferentGIF(b *testing.B) {
 	paths := []string{
-		"./res/abigail-a.gif",
-		"./res/abigail-b.gif",
+		"./res/landscape-a.gif",
+		"./res/landscape-b.gif",
 	}
 	images := make([]*Image, 0, len(paths))
 	for _, p := range paths {

@@ -30,5 +30,5 @@ func (v Version) String() string {
 
 // GetVersion gets current version of pixmatch.
 func GetVersion() string {
-	return Version{0, 0, 2, "alpha-3"}.String()
+	return Version{0, 0, 1, "alpha-4"}.String()
 }
