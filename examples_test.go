@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image/color"
 	"log"
+	"os"
 )
 
 func Example() {
@@ -63,6 +64,31 @@ func ExampleImage_Identical() {
 	samplesult := img1.Identical(img2)
 	fmt.Println(samplesult)
 	// Output: true
+}
+
+func ExampleImage_Load() {
+	img := NewImage(0, 0, FormatGIF)
+	img.Path = "./samples/gray16-b.png"
+
+	fp, err := os.Open(img.Path)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer fp.Close()
+	if err := img.Load(fp); err != nil {
+		log.Fatalln(err)
+	}
+	fmt.Printf("%T\n", img)
+	// Output: *pixmatch.Image
+}
+
+func ExampleNewImageFromPath() {
+	img, err := NewImageFromPath("./samples/form-b.png")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	fmt.Printf("%T\n", img)
+	// Output: *pixmatch.Image
 }
 
 func ExampleImage_Size() {
