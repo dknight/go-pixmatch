@@ -51,4 +51,10 @@ const (
 
 	// ErrMissingImage one or both images are missing.
 	ExitMissingImage = 104
+
+	// ExitUnknownFormat if format of the image is not supported.
+	ExitUnknownFormat = 105
+
+	// ExitUnknown all other failings.
+	ExitUnknown = 199
 )

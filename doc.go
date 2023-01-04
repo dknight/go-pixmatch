@@ -6,4 +6,9 @@
 // accurately detects anti-aliasing and may (or may not) count it as a
 // difference.
 // [Pixelmatch.js]: https://github.com/mapbox/pixelmatch
+//
+// Author:  Dmitri Smirnov (https://www.whoop.ee/)
+//
+// License: MIT 2023
+//
 package pixmatch

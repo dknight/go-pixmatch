@@ -11,7 +11,13 @@ import (
 	"testing"
 )
 
-// Set env variable UPDATEDIFFS=1 to update test samples.
+// NOTE
+// Environemnt variable UPDATEDIFFS updates test instances.
+// Use it only if you want to update diff or to be sure that everything
+// is fine. Be careful about when updated. Test results may fail in future
+// and cause a mess.
+
+// Set environment variable UPDATEDIFFS=1 to update test samples.
 var updateDiffImages bool
 
 func init() {
@@ -200,8 +206,8 @@ func TestCompare_Empty(t *testing.T) {
 	imgEmpty1 := NewImage(0, 0, DefaultFormat)
 	imgEmpty2 := NewImage(0, 0, DefaultFormat)
 	px, err := imgEmpty1.Compare(imgEmpty2, nil)
-	if px != ExitEmptyImage && err != nil {
-		t.Error("Images should be empty")
+	if px > 0 && err != nil {
+		t.Error(ErrImageIsEmpty.Error())
 	}
 }
 
@@ -214,9 +220,9 @@ func TestCompare_Dimensions(t *testing.T) {
 	for i, p := range paths {
 		images[i], _ = NewImageFromPath(p)
 	}
-	s, err := images[0].Compare(images[1], nil)
-	if err != nil && s != ExitDimensionsNotEqual {
-		t.Error(err)
+	px, err := images[0].Compare(images[1], nil)
+	if px > 0 && err != nil {
+		t.Error(ErrDimensionsDoNotMatch.Error())
 	}
 }
 

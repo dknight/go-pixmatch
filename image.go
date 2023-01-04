@@ -100,8 +100,8 @@ func (img *Image) Size() int {
 }
 
 // Compare returns the number of different pixels between two comparable
-// images. Zero is returned if no difference found or if something went wrong
-// but in the second case error also returned.
+// images. Zero is returned if no difference found.Returns negative values
+// if something went wrong but in this case error also returned.
 func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 	if opts == nil {
 		opts = NewOptions()
@@ -109,20 +109,16 @@ func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 
 	// If empty images return error.
 	if img.Empty() || img2.Empty() {
-		return ExitEmptyImage, ErrImageIsEmpty
+		return -1, ErrImageIsEmpty
 	}
 
 	// If dimensions do not match return error.
 	if !img.DimensionsEqual(img2) {
-		return ExitDimensionsNotEqual, ErrDimensionsDoNotMatch
+		return -1, ErrDimensionsDoNotMatch
 	}
 
 	// If bytes are the same just return nothing to compare more.
 	if img.Identical(img2) {
-		// NOTE
-		// We don't work to generate output image if it has no differences.
-		// but original pixelmatch.js has it, maybe add later extra
-		// option for this.
 		return 0, nil
 	}
 
@@ -175,7 +171,7 @@ func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 	if opts.Output != nil {
 		err := output.Save(opts.Output)
 		if err != nil {
-			return 0, err
+			return -1, err
 		}
 	}
 	return diff, nil

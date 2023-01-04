@@ -1,6 +1,7 @@
 // Command Line Interface (CLI) for pixmatch
 //
 //	go install github.com/dknight/go-pixmatch/cmd/pixmatch@latest
+//
 package main
 
 import (
@@ -13,7 +14,8 @@ import (
 )
 
 // Usages strings
-var outputUsage = "Output file path."
+var outputUsage = "Output file path. If there is no difference empty output" +
+	" file is removed."
 var thresholdUsage = "Threshold of the maximum color delta." +
 	" Values range [0..1] (default 0.1)."
 var alphaUsage = "Alpha channel factor. Values range [0..1]. (default 0.1)"
@@ -96,6 +98,7 @@ func main() {
 		if err != nil {
 			exitErr(pixmatch.ExitFSFail, err)
 		}
+		defer fp.Close()
 		opts.SetOutput(fp)
 	}
 	if threshold != 0 {
@@ -159,7 +162,22 @@ func main() {
 
 	px, err := images[0].Compare(images[1], opts)
 	if err != nil {
-		exitErr(pixmatch.ExitEmptyImage, err)
+		switch err {
+		case pixmatch.ErrDimensionsDoNotMatch:
+			exitErr(pixmatch.ExitDimensionsNotEqual, err)
+		case pixmatch.ErrImageIsEmpty:
+			exitErr(pixmatch.ExitEmptyImage, err)
+		case pixmatch.ErrUnknownFormat:
+			exitErr(pixmatch.ExitUnknownFormat, err)
+		default:
+			exitErr(pixmatch.ExitUnknown, err)
+		}
+	}
+
+	// If no diference remove file.
+	// NOTE Maybe this is not a good way to do.
+	if output != "" && px <= 0 {
+		os.Remove(output)
 	}
 
 	if percent {
