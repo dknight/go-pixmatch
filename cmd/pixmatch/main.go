@@ -13,7 +13,6 @@ import (
 	"github.com/dknight/go-pixmatch"
 )
 
-// Usages strings
 var outputUsage = "Output file path."
 var thresholdUsage = "Threshold of the maximum color delta." +
 	" Values range [0..1] (default 0.1)."
@@ -30,9 +29,8 @@ var maskUsage = "mask renders the differences without the" +
 var versionUsage = "Display the version of pixmatch."
 var percentUsage = "Display the difference in percent, instead of pixels" +
 	" (default false)."
-var keepUsage = "Keep empty output files."
+var keepUsage = "Keep empty output files. Valid only with -o flag."
 
-// Initialize flags
 var output string
 var threshold float64
 var alpha float64
@@ -94,7 +92,7 @@ func main() {
 	paths := make([]string, 2)
 	images := make([]*pixmatch.Image, 2)
 
-	// Set options -------------------------------------------
+	// Set options -------------------------------------------------------
 	if output != "" {
 		fp, err := os.Create(output)
 		if err != nil {
@@ -136,7 +134,7 @@ func main() {
 	if mask {
 		opts.SetDiffMask(true)
 	}
-	// -------------------------------------------------------
+	// -------------------------------------------------------------------
 
 	args := flag.Args()
 	for i, arg := range args {
@@ -177,7 +175,6 @@ func main() {
 	}
 
 	// If no diference remove file.
-	// NOTE Maybe this is not a good way to do.
 	if output != "" && px <= 0 && !keep {
 		os.Remove(output)
 	}
