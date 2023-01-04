@@ -36,18 +36,22 @@ type Options struct {
 	// DiffMask sets to use mask, renders the differences without the original
 	// image.
 	DiffMask bool
+
+	// KeepEmptyDiff removes empty diff files.
+	KeepEmptyDiff bool
 }
 
 // defaultOptions are just default options.
 var defaultOptions = Options{
-	Output:       nil,
-	Threshold:    0.1,
-	Alpha:        0.1,
-	IncludeAA:    false,
-	AAColor:      color.RGBA{0xff, 0xff, 0, 0xff},
-	DiffColor:    color.RGBA{0xff, 0, 0, 0xff},
-	DiffColorAlt: nil,
-	DiffMask:     false,
+	Output:        nil,
+	Threshold:     0.1,
+	Alpha:         0.1,
+	IncludeAA:     false,
+	AAColor:       color.RGBA{0xff, 0xff, 0, 0xff},
+	DiffColor:     color.RGBA{0xff, 0, 0, 0xff},
+	DiffColorAlt:  nil,
+	DiffMask:      false,
+	KeepEmptyDiff: false,
 }
 
 // NewOptions creates a new Options instance. It is possible to use
@@ -55,14 +59,15 @@ var defaultOptions = Options{
 // dependencies whenever possible.
 func NewOptions() *Options {
 	return &Options{
-		Output:       defaultOptions.Output,
-		Threshold:    defaultOptions.Threshold,
-		Alpha:        defaultOptions.Alpha,
-		IncludeAA:    defaultOptions.IncludeAA,
-		AAColor:      defaultOptions.AAColor,
-		DiffColor:    defaultOptions.DiffColor,
-		DiffColorAlt: defaultOptions.DiffColorAlt,
-		DiffMask:     defaultOptions.DiffMask,
+		Output:        defaultOptions.Output,
+		Threshold:     defaultOptions.Threshold,
+		Alpha:         defaultOptions.Alpha,
+		IncludeAA:     defaultOptions.IncludeAA,
+		AAColor:       defaultOptions.AAColor,
+		DiffColor:     defaultOptions.DiffColor,
+		DiffColorAlt:  defaultOptions.DiffColorAlt,
+		DiffMask:      defaultOptions.DiffMask,
+		KeepEmptyDiff: defaultOptions.KeepEmptyDiff,
 	}
 }
 
@@ -112,5 +117,11 @@ func (opts *Options) SetDiffColorAlt(v color.Color) *Options {
 // SetDiffMask sets difference mask to the options.
 func (opts *Options) SetDiffMask(v bool) *Options {
 	opts.DiffMask = v
+	return opts
+}
+
+// SetKeepEmptyDiff sets difference mask to the options.
+func (opts *Options) SetKeepEmptyDiff(v bool) *Options {
+	opts.KeepEmptyDiff = v
 	return opts
 }

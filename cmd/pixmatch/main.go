@@ -14,8 +14,7 @@ import (
 )
 
 // Usages strings
-var outputUsage = "Output file path. If there is no difference empty output" +
-	" file is removed."
+var outputUsage = "Output file path."
 var thresholdUsage = "Threshold of the maximum color delta." +
 	" Values range [0..1] (default 0.1)."
 var alphaUsage = "Alpha channel factor. Values range [0..1]. (default 0.1)"
@@ -31,6 +30,7 @@ var maskUsage = "mask renders the differences without the" +
 var versionUsage = "Display the version of pixmatch."
 var percentUsage = "Display the difference in percent, instead of pixels" +
 	" (default false)."
+var keepUsage = "Keep empty output files."
 
 // Initialize flags
 var output string
@@ -43,6 +43,7 @@ var diffColorAlt string
 var mask bool
 var version bool
 var percent bool
+var keep bool
 
 func init() {
 	flag.Usage = func() {
@@ -70,6 +71,7 @@ func init() {
 	flag.BoolVar(&mask, "mask", false, maskUsage)
 	flag.BoolVar(&version, "v", false, versionUsage)
 	flag.BoolVar(&percent, "percent", false, percentUsage)
+	flag.BoolVar(&keep, "keep", false, keepUsage)
 	flag.Parse()
 
 	// Just display version.
@@ -176,7 +178,7 @@ func main() {
 
 	// If no diference remove file.
 	// NOTE Maybe this is not a good way to do.
-	if output != "" && px <= 0 {
+	if output != "" && px <= 0 && !keep {
 		os.Remove(output)
 	}
 

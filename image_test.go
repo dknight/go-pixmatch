@@ -455,7 +455,7 @@ var testPairs = []testPair{
 		pathDiff:     "./samples/original/6empty.png",
 		expectedDiff: 0,
 		skip:         false,
-		options:      NewOptions().SetThreshold(1.0),
+		options:      NewOptions().SetThreshold(1.0).SetKeepEmptyDiff(true),
 	},
 	testPair{
 		name:         "pixelmatch.js_700",
