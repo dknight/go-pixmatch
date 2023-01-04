@@ -9,8 +9,8 @@ also accurately detects anti-aliasing and may count it as a difference.
 
 ## Example output
 
-| Format | Image A      | Image B   | Difference |
-|--------------|-----------|------------|
+| Format       | Expected         | Actual    | Difference |
+|--------------|------------------|-----------|------------|
 | JPEG | ![Hummingbird](https://github.com/dknight/go-pixmatch/blob/main/files/samples/bird-a.jpg?raw=true) | ![Hummingbird](https://github.com/dknight/go-pixmatch/blob/main/files/samples/bird-b.jpg?raw=true) | ![Hummingbird](https://github.com/dknight/go-pixmatch/blob/main/files/samples/bird-diff.jpg?raw=true) |
 | GIF  | ![Landscape](https://github.com/dknight/go-pixmatch/blob/main/files/samples/landscape-a.gif?raw=true) | ![Landscape](https://github.com/dknight/go-pixmatch/blob/main/files/samples/landscape-b.gif?raw=true) | ![Landscape](https://github.com/dknight/go-pixmatch/blob/main/files/samples/landscape-diff.jpg?raw=true) |
 | PNG  | ![Form](https://github.com/dknight/go-pixmatch/blob/main/files/samples/form-a.png?raw=true) | ![Form](https://github.com/dknight/go-pixmatch/blob/main/files/samples/form-b.png?raw=true) | ![Form](https://github.com/dknight/go-pixmatch/blob/main/files/samples/form-diff.png?raw=true) |
