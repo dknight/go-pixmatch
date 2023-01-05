@@ -11,9 +11,9 @@ also accurately detects anti-aliasing and may count it as a difference.
 
 | Format       | Expected         | Actual    | Difference |
 |--------------|------------------|-----------|------------|
-| JPEG | ![Hummingbird](https://github.com/dknight/go-pixmatch/blob/main/files/samples/bird-a.jpg?raw=true) | ![Hummingbird](https://github.com/dknight/go-pixmatch/blob/main/files/samples/bird-b.jpg?raw=true) | ![Hummingbird](https://github.com/dknight/go-pixmatch/blob/main/files/samples/bird-diff.jpg?raw=true) |
-| GIF  | ![Landscape](https://github.com/dknight/go-pixmatch/blob/main/files/samples/landscape-a.gif?raw=true) | ![Landscape](https://github.com/dknight/go-pixmatch/blob/main/files/samples/landscape-b.gif?raw=true) | ![Landscape](https://github.com/dknight/go-pixmatch/blob/main/files/samples/landscape-diff.jpg?raw=true) |
-| PNG  | ![Form](https://github.com/dknight/go-pixmatch/blob/main/files/samples/form-a.png?raw=true) | ![Form](https://github.com/dknight/go-pixmatch/blob/main/files/samples/form-b.png?raw=true) | ![Form](https://github.com/dknight/go-pixmatch/blob/main/files/samples/form-diff.png?raw=true) |
+| JPEG | ![Hummingbird](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/bird-a.jpg) | ![Hummingbird](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/bird-b.jpg) | ![Hummingbird](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/bird-diff.jpg) |
+| GIF  | ![Landscape](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/landscape-a.gif) | ![Landscape](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/landscape-b.gif) | ![Landscape](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/landscape-diff.jpg) |
+| PNG  | ![Form](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/form-a.png) | ![Form](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/form-b.png) | ![Form](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/form-diff.png) |
 
 ## Install
 
