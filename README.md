@@ -20,7 +20,7 @@ also accurately detects anti-aliasing and may count it as a difference.
 Library:
 
 ```sh
-go get -u github.com/dknight/go-pixmatch`
+go get -u github.com/dknight/go-pixmatch
 ```
 
 CLI:
