@@ -13,7 +13,7 @@ also accurately detects anti-aliasing and may count it as a difference.
 |--------------|------------------|-----------|------------|
 | JPEG | ![Hummingbird](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/bird-a.jpg) | ![Hummingbird](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/bird-b.jpg) | ![Hummingbird](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/bird-diff.jpg) |
 | GIF  | ![Landscape](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/landscape-a.gif) | ![Landscape](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/landscape-b.gif) | ![Landscape](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/landscape-diff.gif) |
-| PNG  | ![Form](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/form-a.png) | ![Form](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/form-b.png) | ![Form](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/form-diff.png) |
+| PNG  | ![Form](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/form-a.png) | ![Form](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/form-b.png) | ![Form](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/form-aa-diff.png) |
 
 ## Install
 
