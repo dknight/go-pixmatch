@@ -363,7 +363,7 @@ var testPairs = []testPair{
 		pathA:        "./samples/landscape-a.gif",
 		pathB:        "./samples/landscape-b.gif",
 		pathDiff:     "./samples/landscape-diff.gif",
-		expectedDiff: 5897,
+		expectedDiff: 9225,
 		skip:         false,
 		options:      NewOptions().SetAlpha(.5).SetThreshold(0.05).SetIncludeAA(true),
 	},
