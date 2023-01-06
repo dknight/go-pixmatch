@@ -30,6 +30,7 @@ var versionUsage = "Display the version of pixmatch."
 var percentUsage = "Display the difference in percent, instead of pixels" +
 	" (default false)."
 var keepUsage = "Keep empty output files. Valid only with -o flag."
+var nUsage = "Do not output the trailing newline."
 
 var output string
 var threshold float64
@@ -42,6 +43,7 @@ var mask bool
 var version bool
 var percent bool
 var keep bool
+var n bool
 
 func init() {
 	flag.Usage = func() {
@@ -70,6 +72,7 @@ func init() {
 	flag.BoolVar(&version, "v", false, versionUsage)
 	flag.BoolVar(&percent, "percent", false, percentUsage)
 	flag.BoolVar(&keep, "keep", false, keepUsage)
+	flag.BoolVar(&n, "n", false, nUsage)
 	flag.Parse()
 
 	// Just display version.
@@ -180,10 +183,18 @@ func main() {
 	}
 
 	if percent {
+		format := "%.2f%%"
+		if !n {
+			format += "\n"
+		}
 		pct := float64(px) / float64(images[0].Size()) * 100
-		fmt.Fprintf(os.Stdout, "%.2f%%\n", pct)
+		fmt.Fprintf(os.Stdout, format, pct)
 	} else {
-		fmt.Fprintf(os.Stdout, "%d\n", px)
+		format := "%d"
+		if !n {
+			format += "\n"
+		}
+		fmt.Fprintf(os.Stdout, format, px)
 	}
 }
 
