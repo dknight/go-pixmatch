@@ -29,7 +29,7 @@ CLI:
 go install github.com/dknight/go-pixmatch/cmd/pixmatch
 ```
 
-## Library Usage
+## Library usage
 
 ```go
 img1, err := NewImageFromPath("./samples/form-a.png")
