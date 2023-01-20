@@ -61,7 +61,7 @@ fmt.Println(diff)
 Usage:
 
 ```sh
-pixelmatch [flags] image1.png image2.png
+pixelmatch [options] image1.png image2.png
 ```
 
 Run `pixmatch -h` for the list of supported options.
