@@ -34,11 +34,11 @@ go install github.com/dknight/go-pixmatch/cmd/pixmatch
 ```go
 img1, err := NewImageFromPath("./samples/form-a.png")
 if err != nil {
-    log.Fatalln(err)
+log.Fatalln(err)
 }
 img2, err := NewImageFromPath("./samples/form-b.png")
 if err != nil {
-    log.Fatalln(err)
+log.Fatalln(err)
 }
 
 // Set some options.
@@ -50,7 +50,7 @@ options.SetDiffColor(color.RGBA{0, 255, 128, 255})
 
 diff, err := img1.Compare(img2, options)
 if err != nil {
-    log.Fatalln(err)
+log.Fatalln(err)
 }
 
 fmt.Println(diff)
@@ -105,10 +105,10 @@ UPDATEDIFFS=1 go test -cover
 UPDATEDIFFS=1 go test -coverprofile c.out && go tool cover -html c.out
 ```
 
-Benchmark scripts:
+Benchmark scripts (outputFile will be written in `logs/` directory):
 
 ```sh
-./scripts/benchmark.sh filename [iterations=10]
+./scripts/benchmark.sh <outputFile> [iterations=10]
 ```
 
 Later, it is easier to analyze it with a cool [benchstat](https://pkg.go.dev/golang.org/x/perf/cmd/benchstat) tool.
