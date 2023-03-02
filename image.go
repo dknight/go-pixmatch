@@ -102,6 +102,9 @@ func (img *Image) Size() int {
 // Compare returns the number of different pixels between two comparable
 // images. Zero is returned if no difference found.Returns negative values
 // if something went wrong but in this case error also returned.
+//
+// Looks like process row of the pixel in a single goroutine is the most
+// performant way to do this, but I can mistake here.
 func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 	if opts == nil {
 		opts = NewOptions()
