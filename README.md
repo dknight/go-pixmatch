@@ -3,7 +3,6 @@
 **pixmatch** is a pixel-level image comparison tool. Heavily inspired by
 [pixelmatch](https://github.com/mapbox/pixelmatch), but rewritten in idiomatic
 Go, **with zero dependencies,** to speed up images comparison.
-
 Go pixmatch has support for **PNG**, **GIF** and **JPEG** formats. This tool
 also accurately detects anti-aliasing and may count it as a difference.
 
@@ -34,11 +33,11 @@ go install github.com/dknight/go-pixmatch/cmd/pixmatch
 ```go
 img1, err := NewImageFromPath("./samples/form-a.png")
 if err != nil {
-log.Fatalln(err)
+    log.Fatalln(err)
 }
 img2, err := NewImageFromPath("./samples/form-b.png")
 if err != nil {
-log.Fatalln(err)
+    log.Fatalln(err)
 }
 
 // Set some options.
@@ -50,7 +49,7 @@ options.SetDiffColor(color.RGBA{0, 255, 128, 255})
 
 diff, err := img1.Compare(img2, options)
 if err != nil {
-log.Fatalln(err)
+    log.Fatalln(err)
 }
 
 fmt.Println(diff)
