@@ -3,6 +3,9 @@
 # Script generate easier benchmarks.
 # Later it is easier to analyze it with benchstat tool.
 
+logdir="logs"
+logfile="$logdir/$1"
+
 if [ -z $1 ]; then
     echo "No output file name given."
     exit 1
@@ -14,9 +17,6 @@ if [ -z $2 ]; then
 else
     n=$2
 fi
-
-logdir="logs"
-logfile="$logdir/$1"
 
 mkdir -p "$logdir"
 : > "$logfile"
