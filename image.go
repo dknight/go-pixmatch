@@ -41,6 +41,9 @@ type Image struct {
 	// PixData contains data for colors as uint32 numbers.
 	PixData []uint32
 
+	// BPC is the number of bytes per color.
+	BPC int
+
 	// Image is an embedded [image.Image] from the standard library.
 	image.Image
 }
@@ -91,6 +94,7 @@ func (img *Image) Load(rd io.Reader) (err error) {
 	}
 	// Cache pixel data because Uint32() is very expensive.
 	img.PixData = img.Uint32()
+	img.BPC = img.BytesPerColor()
 	return
 }
 
@@ -261,10 +265,10 @@ func (img *Image) Stride() int {
 // Position is the position of the pixel in the array of bytes.
 //
 // Formula
-//	(y2-y1)*Stride + (x2-x1)*bpc
+//	(y2-y1)*Stride + (x2-x1)*BPC
 func (img *Image) Position(p image.Point) int {
 	return (p.Y-img.Bounds().Min.Y)*img.Stride() +
-		(p.X-img.Bounds().Min.X)*img.BytesPerColor()
+		(p.X-img.Bounds().Min.X)*img.BPC
 }
 
 // BytesPerColor resolves the count of the bytes per color: 1, 2, 4, or 8.
@@ -293,13 +297,12 @@ func (img *Image) BytesPerColor() int {
 // versa. If the argument onlyY is true, the only brightness level will be
 // returned (Y component of the YIQ color space).
 func (img *Image) ColorDelta(img2 *Image, m, n int, onlyY bool) float64 {
-	bpc := img.BytesPerColor()
 	px1 := img.PixData
 	px2 := img2.PixData
 	var r1, g1, b1, a1 uint32
 	var r2, g2, b2, a2 uint32
 
-	switch bpc {
+	switch img.BPC {
 	case 1:
 		r1, g1, b1, a1 = px1[m], px1[m], px1[m], px1[m]
 		r2, g2, b2, a2 = px2[n], px2[n], px2[n], px2[n]
@@ -457,7 +460,7 @@ func (img *Image) SameNeighbors(pt image.Point, n int) bool {
 
 			pos2 := img.Position(image.Pt(x, y))
 			ok := true
-			for i := 0; i < img.BytesPerColor(); i++ {
+			for i := 0; i < img.BPC; i++ {
 				if img.PixData[pos1+i] != img.PixData[pos2+i] {
 					ok = false
 					break
