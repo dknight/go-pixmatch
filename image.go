@@ -133,11 +133,14 @@ func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 	diff := 0
 	output := NewImage(img.Bounds().Dx(), img.Bounds().Dy(), img.Format)
 
+	// Looks like the mutex + WaitGroup is the fastest found solution by me.
+	// sync/atomic also shows the same results.
 	var wg sync.WaitGroup
 	var mu sync.Mutex
+	wg.Add(img.Bounds().Max.Y)
 	for y := img.Bounds().Min.Y; y < img.Bounds().Max.Y; y++ {
-		wg.Add(1)
 		go func(y int) {
+			defer wg.Done()
 			for x := img.Bounds().Min.X; x < img.Bounds().Max.X; x++ {
 				point := image.Pt(x, y)
 				pos := img.Position(point)
@@ -168,7 +171,6 @@ func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 					output.Image.(*image.RGBA).Set(x, y, gray)
 				}
 			}
-			wg.Done()
 		}(y)
 	}
 

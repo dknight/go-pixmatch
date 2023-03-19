@@ -101,7 +101,7 @@ func BenchmarkCompare_DifferentJPEG(b *testing.B) {
 	}
 }
 
-func BenchmarkCompare_DifferentAA(b *testing.B) {
+func BenchmarkCompare_DifferentIncludeAA(b *testing.B) {
 	paths := []string{
 		"./samples/form-a.png",
 		"./samples/form-b.png",
