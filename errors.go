@@ -5,28 +5,28 @@ import "errors"
 var (
 	//ErrDimensionsDoNotMatch represents an error when the dimensions of two
 	//images do not match.
-	ErrDimensionsDoNotMatch = errors.New("Images dimensions do not match")
+	ErrDimensionsDoNotMatch = errors.New("images dimensions do not match")
 
 	// ErrImageIsEmpty occurs when one of the images, or both of them,
 	// are empty.
-	ErrImageIsEmpty = errors.New("One or both images are empty")
+	ErrImageIsEmpty = errors.New("one or both images are empty")
 
 	// ErrCorruptedImage occurs when the data for the image is corrupted and
 	// cannot be read or decoded.
-	ErrCorruptedImage = errors.New("Image data is corrupted")
+	ErrCorruptedImage = errors.New("image data is corrupted")
 
 	// ErrCannotWriteOutputDiff occurs when output cannot be written.
-	ErrCannotWriteOutputDiff = errors.New("Cannot write diff output")
+	ErrCannotWriteOutputDiff = errors.New("cannot write diff output")
 
 	// ErrUnknownFormat occurs when the image format is not supported or
 	// unknown.
-	ErrUnknownFormat = errors.New("Unknown image format")
+	ErrUnknownFormat = errors.New("unknown image format")
 
 	// ErrInvalidColorFormat occurs when user enter invalid color format.
-	ErrInvalidColorFormat = errors.New("Invalid color format")
+	ErrInvalidColorFormat = errors.New("invalid color format")
 
 	// ErrMissingImage occurs when one or both images are missing.
-	ErrMissingImage = errors.New("One or both images are missing")
+	ErrMissingImage = errors.New("one or both images are missing")
 )
 
 // Exit codes that are not defined in the [BSD and Linux specifications].
