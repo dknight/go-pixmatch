@@ -1,5 +1,9 @@
 # pixmatch
 
+[![Tests](https://github.com/dknight/go-pixmatch/actions/workflows/tests.yml/badge.svg)](https://github.com/dknight/go-pixmatch/actions/workflows/tests.yml/badge.svg)
+[![Go Report Card](https://goreportcard.com/badge/github.com/dknight/go-pixmatch)](https://goreportcard.com/report/github.com/dknight/go-pixmatch)
+[![Go Reference](https://pkg.go.dev/badge/github.com/dknight/go-pixmatch.svg)](https://pkg.go.dev/github.com/dknight/go-pixmatch)
+
 **pixmatch** is a pixel-level image comparison tool. Heavily inspired by
 [pixelmatch](https://github.com/mapbox/pixelmatch), but rewritten in idiomatic
 Go, **with zero dependencies,** to speed up images comparison.
