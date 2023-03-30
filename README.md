@@ -1,6 +1,6 @@
 # pixmatch
 
-[![Tests](https://github.com/dknight/go-pixmatch/actions/workflows/tests.yml/badge.svg)](https://github.com/dknight/go-pixmatch/actions/workflows/tests.yml/badge.svg)
+[![Tests](https://github.com/dknight/go-pixmatch/actions/workflows/tests.yml/badge.svg)](https://github.com/dknight/go-pixmatch/actions/workflows/tests.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/dknight/go-pixmatch)](https://goreportcard.com/report/github.com/dknight/go-pixmatch)
 [![Go Reference](https://pkg.go.dev/badge/github.com/dknight/go-pixmatch.svg)](https://pkg.go.dev/github.com/dknight/go-pixmatch)
 
