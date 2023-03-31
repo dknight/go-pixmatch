@@ -94,7 +94,75 @@ func main() {
 	paths := make([]string, 2)
 	images := make([]*pixmatch.Image, 2)
 
-	// Set options -------------------------------------------------------
+	setupOptions(opts)
+
+	args := flag.Args()
+	for i, arg := range args {
+		paths[i] = arg
+	}
+
+	// Load images
+	var wg sync.WaitGroup
+	for i := range paths {
+		wg.Add(1)
+		go func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					exitErr(pixmatch.ExitFSFail, r.(error))
+				}
+			}()
+			img, err := pixmatch.NewImageFromPath(paths[i])
+			if err != nil {
+				panic(err)
+			}
+			images[i] = img
+			wg.Done()
+		}(i)
+	}
+	wg.Wait()
+
+	// Compare images
+	px, err := images[0].Compare(images[1], opts)
+	if err != nil {
+		switch err {
+		case pixmatch.ErrDimensionsDoNotMatch:
+			exitErr(pixmatch.ExitDimensionsNotEqual, err)
+		case pixmatch.ErrImageIsEmpty:
+			exitErr(pixmatch.ExitEmptyImage, err)
+		case pixmatch.ErrUnknownFormat:
+			exitErr(pixmatch.ExitUnknownFormat, err)
+		default:
+			exitErr(pixmatch.ExitUnknown, err)
+		}
+	}
+
+	// If no diference remove file.
+	if output != "" && px <= 0 && !keep {
+		os.Remove(output)
+	}
+
+	output := format(px, percent, images[0])
+	fmt.Fprint(os.Stdout, output)
+	os.Exit(0)
+}
+
+func format(d int, isPct bool, img *pixmatch.Image) string {
+	if isPct {
+		format := "%.2f%%"
+		if !n {
+			format += "\n"
+		}
+		pct := float64(d) / float64(img.Size()) * 100
+		return fmt.Sprintf(format, pct)
+	}
+	format := "%d"
+	if !n {
+		format += "\n"
+	}
+	return fmt.Sprintf(format, d)
+}
+
+func setupOptions(opts *pixmatch.Options) {
 	if output != "" {
 		fp, err := os.Create(output)
 		if err != nil {
@@ -135,65 +203,6 @@ func main() {
 	}
 	if mask {
 		opts.SetDiffMask(true)
-	}
-	// -------------------------------------------------------------------
-
-	args := flag.Args()
-	for i, arg := range args {
-		paths[i] = arg
-	}
-
-	var wg sync.WaitGroup
-	for i := range paths {
-		wg.Add(1)
-		go func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					exitErr(pixmatch.ExitFSFail, r.(error))
-				}
-			}()
-			img, err := pixmatch.NewImageFromPath(paths[i])
-			if err != nil {
-				panic(err)
-			}
-			images[i] = img
-			wg.Done()
-		}(i)
-	}
-	wg.Wait()
-
-	px, err := images[0].Compare(images[1], opts)
-	if err != nil {
-		switch err {
-		case pixmatch.ErrDimensionsDoNotMatch:
-			exitErr(pixmatch.ExitDimensionsNotEqual, err)
-		case pixmatch.ErrImageIsEmpty:
-			exitErr(pixmatch.ExitEmptyImage, err)
-		case pixmatch.ErrUnknownFormat:
-			exitErr(pixmatch.ExitUnknownFormat, err)
-		default:
-			exitErr(pixmatch.ExitUnknown, err)
-		}
-	}
-
-	// If no diference remove file.
-	if output != "" && px <= 0 && !keep {
-		os.Remove(output)
-	}
-
-	if percent {
-		format := "%.2f%%"
-		if !n {
-			format += "\n"
-		}
-		pct := float64(px) / float64(images[0].Size()) * 100
-		fmt.Fprintf(os.Stdout, format, pct)
-	} else {
-		format := "%d"
-		if !n {
-			format += "\n"
-		}
-		fmt.Fprintf(os.Stdout, format, px)
 	}
 }
 
