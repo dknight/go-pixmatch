@@ -220,10 +220,11 @@ func (img *Image) DimensionsEqual(img2 *Image) bool {
 // This means that all the bytes of both images are the same.
 //
 // Alternative possible ways to compare:
-//  loops - the slowest (faster for smaller images)
-//  reflect.DeepEqual() - slower
-//  bytes.Compare() - better
-//  bytes.Equal() - even better
+//
+//	loops - the slowest (faster for smaller images)
+//	 reflect.DeepEqual() - slower
+//	 bytes.Compare() - better
+//	 bytes.Equal() - even better
 func (img *Image) Identical(img2 *Image) bool {
 	return bytes.Equal(img.Bytes(), img2.Bytes())
 }
@@ -267,6 +268,7 @@ func (img *Image) Stride() int {
 // Position is the position of the pixel in the array of bytes.
 //
 // Formula
+//
 //	(y2-y1)*Stride + (x2-x1)*BPC
 func (img *Image) Position(p image.Point) int {
 	return (p.Y-img.Bounds().Min.Y)*img.Stride() +

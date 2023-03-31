@@ -7,7 +7,7 @@ import (
 
 // Options is the structure that stores the settings for common comparisons.
 type Options struct {
-	// Output is stucture where final image will be written.
+	// Output is structure where final image will be written.
 	Output io.Writer
 
 	// Threshold is the threshold of the maximum color delta.

@@ -10,5 +10,4 @@
 // Author:  Dmitri Smirnov (https://www.whoop.ee/)
 //
 // License: MIT 2023
-//
 package pixmatch

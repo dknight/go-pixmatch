@@ -1,7 +1,6 @@
 // Command Line Interface (CLI) for pixmatch
 //
 //	go install github.com/dknight/go-pixmatch/cmd/pixmatch@latest
-//
 package main
 
 import (

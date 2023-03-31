@@ -64,10 +64,10 @@ func TestString(t *testing.T) {
 
 func TestHexStringToColor(t *testing.T) {
 	pairs := map[string]*color.RGBA{
-		"ff00ff00":   &color.RGBA{0xff, 0, 0xff, 0},
-		"0Xff00ff01": &color.RGBA{0xff, 0, 0xff, 0x1},
-		"0xFF00FF0F": &color.RGBA{0xff, 0, 0xff, 0xf},
-		"0xFF7FFEFF": &color.RGBA{0xff, 0x7f, 0xfe, 0xff},
+		"ff00ff00":   {0xff, 0, 0xff, 0},
+		"0Xff00ff01": {0xff, 0, 0xff, 0x1},
+		"0xFF00FF0F": {0xff, 0, 0xff, 0xf},
+		"0xFF7FFEFF": {0xff, 0x7f, 0xfe, 0xff},
 	}
 	for hex, color := range pairs {
 		res, err := HexStringToColor(hex)
@@ -80,8 +80,8 @@ func TestHexStringToColor(t *testing.T) {
 	}
 
 	invalids := map[string]*color.RGBA{
-		"ffff0":    &color.RGBA{0xff, 0, 0xff, 0},
-		"ff0yff00": &color.RGBA{0xff, 0, 0xff, 0},
+		"ffff0":    {0xff, 0, 0xff, 0},
+		"ff0yff00": {0xff, 0, 0xff, 0},
 	}
 	for hex := range invalids {
 		_, err := HexStringToColor(hex)

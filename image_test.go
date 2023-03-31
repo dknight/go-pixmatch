@@ -12,7 +12,7 @@ import (
 )
 
 // NOTE
-// Environemnt variable UPDATEDIFFS updates test instances.
+// Environment variable UPDATEDIFFS updates test instances.
 // Use it only if you want to update diff or to be sure that everything
 // is fine. Be careful about when updated. Test results may fail in future
 // and cause a mess.
@@ -252,9 +252,9 @@ func TestColorDelta(t *testing.T) {
 	}
 
 	pairs := map[image.Point]float64{
-		image.Point{35, 140}:  8097.090700072483,
-		image.Point{50, 15}:   0,
-		image.Point{105, 105}: -30.08278788879798,
+		{35, 140}:  8097.090700072483,
+		{50, 15}:   0,
+		{105, 105}: -30.08278788879798,
 	}
 
 	for pt, want := range pairs {
@@ -277,12 +277,12 @@ func TestColorDelta(t *testing.T) {
 func TestSameNeighbors(t *testing.T) {
 	img, _ := NewImageFromPath("./samples/form-a.png")
 	pairs := map[image.Point]bool{
-		image.Point{33, 218}: true,
-		image.Point{107, 68}: false,
-		image.Point{13, 72}:  true,
-		image.Point{17, 72}:  true,
-		image.Point{6, 70}:   true,
-		image.Point{68, 119}: false,
+		{33, 218}: true,
+		{107, 68}: false,
+		{13, 72}:  true,
+		{17, 72}:  true,
+		{6, 70}:   true,
+		{68, 119}: false,
 	}
 
 	for pt, want := range pairs {
@@ -296,9 +296,9 @@ func TestSameNeighbors(t *testing.T) {
 func TestAntialiased(t *testing.T) {
 	img, _ := NewImageFromPath("./samples/form-a.png")
 	pairs := map[image.Point]bool{
-		image.Point{0, 0}:    false,
-		image.Point{50, 50}:  false,
-		image.Point{42, 127}: true,
+		{0, 0}:    false,
+		{50, 50}:  false,
+		{42, 127}: true,
 	}
 
 	for pt, want := range pairs {
@@ -322,7 +322,7 @@ type testPair struct {
 }
 
 var testPairs = []testPair{
-	testPair{
+	{
 		name:         "PNG+GRAY8",
 		pathA:        "./samples/gray8-a.png",
 		pathB:        "./samples/gray8-b.png",
@@ -331,7 +331,7 @@ var testPairs = []testPair{
 		skip:         false,
 		options:      NewOptions().SetIncludeAA(true),
 	},
-	testPair{
+	{
 		name:         "PNG+GRAY16",
 		pathA:        "./samples/gray16-a.png",
 		pathB:        "./samples/gray16-b.png",
@@ -340,7 +340,7 @@ var testPairs = []testPair{
 		skip:         false,
 		options:      NewOptions().SetIncludeAA(true),
 	},
-	testPair{
+	{
 		name:         "PNG+Alpha",
 		pathA:        "./samples/form-a.png",
 		pathB:        "./samples/form-b.png",
@@ -349,7 +349,7 @@ var testPairs = []testPair{
 		skip:         false,
 		options:      NewOptions(),
 	},
-	testPair{
+	{
 		name:         "PNG+Alpha+Anti-aliasing",
 		pathA:        "./samples/form-a.png",
 		pathB:        "./samples/form-b.png",
@@ -358,7 +358,7 @@ var testPairs = []testPair{
 		skip:         false,
 		options:      NewOptions().SetIncludeAA(true),
 	},
-	testPair{
+	{
 		name:         "GIF",
 		pathA:        "./samples/landscape-a.gif",
 		pathB:        "./samples/landscape-b.gif",
@@ -367,7 +367,7 @@ var testPairs = []testPair{
 		skip:         false,
 		options:      NewOptions().SetAlpha(.5).SetThreshold(0.05).SetIncludeAA(true),
 	},
-	testPair{
+	{
 		name:         "JPEG",
 		pathA:        "./samples/bird-a.jpg",
 		pathB:        "./samples/bird-b.jpg",
@@ -376,7 +376,7 @@ var testPairs = []testPair{
 		skip:         false,
 		options:      NewOptions().SetAlpha(.5),
 	},
-	testPair{
+	{
 		name:         "pixelmatch.js_100",
 		pathA:        "./samples/original/1a.png",
 		pathB:        "./samples/original/1b.png",
@@ -385,7 +385,7 @@ var testPairs = []testPair{
 		skip:         false,
 		options:      NewOptions().SetThreshold(.05),
 	},
-	testPair{
+	{
 		name:         "pixelmatch.js_101",
 		pathA:        "./samples/original/1a.png",
 		pathB:        "./samples/original/1b.png",
@@ -394,7 +394,7 @@ var testPairs = []testPair{
 		skip:         false,
 		options:      NewOptions().SetThreshold(.05).SetDiffMask(true),
 	},
-	testPair{
+	{
 		name:         "pixelmatch.js_102",
 		pathA:        "./samples/original/1a.png",
 		pathB:        "./samples/original/1b.png",
@@ -403,7 +403,7 @@ var testPairs = []testPair{
 		skip:         false,
 		options:      NewOptions().SetThreshold(1).SetDiffMask(true),
 	},
-	testPair{
+	{
 		name:         "pixelmatch.js_200",
 		pathA:        "./samples/original/2a.png",
 		pathB:        "./samples/original/2b.png",
@@ -412,7 +412,7 @@ var testPairs = []testPair{
 		skip:         false,
 		options:      NewOptions().SetThreshold(.05).SetAlpha(.5).SetAAColor(color.RGBA{0, 0xc0, 0, 0xff}).SetDiffColor(color.RGBA{0xff, 0, 0xff, 0xff}),
 	},
-	testPair{
+	{
 		name:         "pixelmatch.js_300",
 		pathA:        "./samples/original/3a.png",
 		pathB:        "./samples/original/3b.png",
@@ -421,7 +421,7 @@ var testPairs = []testPair{
 		skip:         false,
 		options:      NewOptions().SetThreshold(.05),
 	},
-	testPair{
+	{
 		name:         "pixelmatch.js_400",
 		pathA:        "./samples/original/4a.png",
 		pathB:        "./samples/original/4b.png",
@@ -430,7 +430,7 @@ var testPairs = []testPair{
 		skip:         false,
 		options:      NewOptions().SetThreshold(.05),
 	},
-	testPair{
+	{
 		name:         "pixelmatch.js_500",
 		pathA:        "./samples/original/5a.png",
 		pathB:        "./samples/original/5b.png",
@@ -439,7 +439,7 @@ var testPairs = []testPair{
 		skip:         false,
 		options:      NewOptions().SetThreshold(.05),
 	},
-	testPair{
+	{
 		name:         "pixelmatch.js_600",
 		pathA:        "./samples/original/6a.png",
 		pathB:        "./samples/original/6b.png",
@@ -448,7 +448,7 @@ var testPairs = []testPair{
 		skip:         false,
 		options:      NewOptions().SetThreshold(.05),
 	},
-	testPair{
+	{
 		name:         "pixelmatch.js_601",
 		pathA:        "./samples/original/6a.png",
 		pathB:        "./samples/original/6b.png",
@@ -457,7 +457,7 @@ var testPairs = []testPair{
 		skip:         false,
 		options:      NewOptions().SetThreshold(1.0).SetKeepEmptyDiff(true),
 	},
-	testPair{
+	{
 		name:         "pixelmatch.js_700",
 		pathA:        "./samples/original/7a.png",
 		pathB:        "./samples/original/7b.png",
