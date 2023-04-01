@@ -265,7 +265,7 @@ func TestColorDelta(t *testing.T) {
 		}
 	}
 
-	// Only Y (brigthness) component.
+	// Only Y (brightness) component.
 	pos := images[0].Position(image.Point{40, 220})
 	samples := images[0].ColorDelta(images[1], pos, pos, true)
 	want := 7.784791640000009
