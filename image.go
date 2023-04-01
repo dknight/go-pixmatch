@@ -155,10 +155,7 @@ func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 						}
 					} else {
 						if opts.Output != nil {
-							diffColor := opts.DiffColor
-							if delta < 0 && opts.DiffColorAlt != nil {
-								diffColor = opts.DiffColorAlt
-							}
+							diffColor := getDiffColor(opts, delta)
 							output.Image.(*image.RGBA).Set(x, y, diffColor)
 						}
 						mu.Lock()
@@ -184,6 +181,15 @@ func (img *Image) Compare(img2 *Image, opts *Options) (int, error) {
 		}
 	}
 	return diff, nil
+}
+
+// getDiffColor get diff color.
+func getDiffColor(opts *Options, delta float64) color.Color {
+	diffColor := opts.DiffColor
+	if delta < 0 && opts.DiffColorAlt != nil {
+		diffColor = opts.DiffColorAlt
+	}
+	return diffColor
 }
 
 // Save encodes and writes image data to the destination.
