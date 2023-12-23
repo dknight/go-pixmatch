@@ -6,7 +6,7 @@ import (
 )
 
 // currentVersion of the software, do not forget to change it with release.
-var currentVersion = Version{1, 0, 10, ""}
+var currentVersion = Version{1, 1, 0, ""}
 
 // Version is extremely simple semantic version structure. Personally, I
 // wouldn't like to use external (especially heavy) dependencies to manage

@@ -4,9 +4,12 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
+	"log"
 	"os"
+	"strings"
 	"sync"
 
 	"github.com/dknight/go-pixmatch"
@@ -30,6 +33,7 @@ var percentUsage = "Display the difference in percent, instead of pixels" +
 	" (default false)."
 var keepUsage = "Keep empty output files. Valid only with -o flag."
 var nUsage = "Do not output the trailing newline."
+var watchUsage = "Experimental: Watch for input pair of images"
 
 var output string
 var threshold float64
@@ -43,6 +47,7 @@ var version bool
 var percent bool
 var keep bool
 var n bool
+var watch bool
 
 func init() {
 	flag.Usage = func() {
@@ -72,6 +77,7 @@ func init() {
 	flag.BoolVar(&percent, "percent", false, percentUsage)
 	flag.BoolVar(&keep, "keep", false, keepUsage)
 	flag.BoolVar(&n, "n", false, nUsage)
+	flag.BoolVar(&watch, "w", false, watchUsage)
 	flag.Parse()
 
 	// Just display version.
@@ -80,26 +86,20 @@ func init() {
 		os.Exit(pixmatch.ExitOk)
 	}
 	argsCount := flag.NArg()
-	if argsCount == 0 {
+	if argsCount == 0 && !watch {
 		flag.Usage()
 		os.Exit(pixmatch.ExitOk)
 	}
-	if argsCount < 2 {
+	if argsCount < 2 && !watch {
 		exitErr(pixmatch.ExitMissingImage, pixmatch.ErrMissingImage)
 	}
 }
 
-func main() {
+func runComparison(paths []string) {
 	opts := pixmatch.NewOptions()
-	paths := make([]string, 2)
 	images := make([]*pixmatch.Image, 2)
 
 	setupOptions(opts)
-
-	args := flag.Args()
-	for i, arg := range args {
-		paths[i] = arg
-	}
 
 	// Load images
 	var wg sync.WaitGroup
@@ -143,6 +143,35 @@ func main() {
 
 	output := format(px, percent, images[0])
 	fmt.Fprint(os.Stdout, output)
+}
+
+func main() {
+	paths := make([]string, 2)
+	args := flag.Args()
+	if watch {
+		homeDir, _ := os.UserHomeDir()
+		fname := fmt.Sprintf("%s/%s", homeDir, "pixmatch.stream")
+		file, err := os.OpenFile(fname, os.O_CREATE|os.O_RDONLY, 0644)
+		if err != nil {
+			log.Fatal("Open named file error:", err)
+		}
+		rd := bufio.NewReader(file)
+		for {
+			line, _ := rd.ReadString('\n')
+			// if err != nil {
+			// 	log.Fatal(err)
+			// }
+			paths = strings.Fields(line)
+			if len(paths) > 0 {
+				runComparison(paths)
+			}
+		}
+	}
+
+	for i, arg := range args {
+		paths[i] = arg
+	}
+	runComparison(paths)
 	os.Exit(0)
 }
 
