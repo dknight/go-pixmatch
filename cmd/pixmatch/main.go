@@ -49,6 +49,8 @@ var keep bool
 var n bool
 var watch bool
 
+var fpOutout *os.File
+
 func init() {
 	flag.Usage = func() {
 		out := flag.CommandLine.Output()
@@ -172,6 +174,7 @@ func main() {
 		paths[i] = arg
 	}
 	runComparison(paths)
+	fpOutout.Close()
 	os.Exit(0)
 }
 
@@ -197,7 +200,6 @@ func setupOptions(opts *pixmatch.Options) {
 		if err != nil {
 			exitErr(pixmatch.ExitFSFail, err)
 		}
-		defer fp.Close()
 		opts.SetOutput(fp)
 	}
 	if threshold != 0 {
