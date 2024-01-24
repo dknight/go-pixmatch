@@ -12,11 +12,11 @@ also accurately detects anti-aliasing and may count it as a difference.
 
 ## Example output
 
-| Format       | Expected         | Actual    | Difference |
-|--------------|------------------|-----------|------------|
-| JPEG | ![Hummingbird](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/bird-a.jpg) | ![Hummingbird](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/bird-b.jpg) | ![Hummingbird](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/bird-diff.jpg) |
-| GIF  | ![Landscape](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/landscape-a.gif) | ![Landscape](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/landscape-b.gif) | ![Landscape](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/landscape-diff.gif) |
-| PNG  | ![Form](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/form-a.png) | ![Form](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/form-b.png) | ![Form](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/form-aa-diff.png) |
+| Format | Expected                                                                                         | Actual                                                                                           | Difference                                                                                          |
+| ------ | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
+| JPEG   | ![Hummingbird](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/bird-a.jpg)    | ![Hummingbird](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/bird-b.jpg)    | ![Hummingbird](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/bird-diff.jpg)    |
+| GIF    | ![Landscape](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/landscape-a.gif) | ![Landscape](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/landscape-b.gif) | ![Landscape](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/landscape-diff.gif) |
+| PNG    | ![Form](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/form-a.png)           | ![Form](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/form-b.png)           | ![Form](https://raw.githubusercontent.com/dknight/go-pixmatch/main/samples/form-aa-diff.png)        |
 
 ## Install
 
@@ -116,19 +116,57 @@ Benchmark scripts (outputFile will be written in `logs/` directory):
 
 Later, it is easier to analyze it with a cool [benchstat](https://pkg.go.dev/golang.org/x/perf/cmd/benchstat) tool.
 
+## Using with WASM
+
+Compile WASM file
+
+```sh
+cd cmd/pixmatch
+GOOS=wasip1 GOARCH=wasm go build -o pixmatch.wasm main.go
+```
+
+Node.js exanoke file (index.js)
+
+```js
+const fs = require('node:fs');
+const {WASI} = require('node:wasi');
+const imgs = ['form-a.png', 'form-b.png'];
+const virtulPathWasiPath = '';
+const wasi = new WASI({
+  version: 'preview1',
+  args: [virtulPathWasiPath, '-mask', '-o', 'diff.png', ...imgs],
+  preopens: {
+    '/': __dirname,
+  },
+});
+
+const wasmBuffer = fs.readFileSync('./pixmatch.wasm');
+WebAssembly.instantiate(wasmBuffer, wasi.getImportObject()).then(
+  (wasmModule) => {
+    wasi.start(wasmModule.instance);
+  }
+);
+```
+
+Run node script:
+
+```sh
+NODE_NO_WARNINGS=1 node index.js
+```
+
 ## Known issues, bugs, flaws
 
-* Anti-aliasing detection algorithm can be improved (help appreciated).
-* Because of the nature of the JPEG format, comparing them is not a good idea or play with `threshold` parameter.
-* I have not tested this tool for 64-bit color images.
+- Anti-aliasing detection algorithm can be improved (help appreciated).
+- Because of the nature of the JPEG format, comparing them is not a good idea or play with `threshold` parameter.
+- I have not tested this tool for 64-bit color images.
 
 ## Credits
 
-* To provide 100% compatibility with [pixelmatch](https://github.com/mapbox/pixelmatch).
+- To provide 100% compatibility with [pixelmatch](https://github.com/mapbox/pixelmatch).
   Original test files are borrowed from [fixtures](https://github.com/mapbox/pixelmatch/tree/main/test/fixtures).
-* [Hummingbird](https://commons.wikimedia.org/wiki/File:Hummingbird.jpg) is taken from Wiki commons by San Diego Zoo.
-* Someone on the [Pixilart](https://www.pixilart.com/draw/16x16-6ec491154b5c687) platform created this pixel art girl.
-* Form screenshots are made using [PureCSS](https://purecss.io/) framework.
+- [Hummingbird](https://commons.wikimedia.org/wiki/File:Hummingbird.jpg) is taken from Wiki commons by San Diego Zoo.
+- Someone on the [Pixilart](https://www.pixilart.com/draw/16x16-6ec491154b5c687) platform created this pixel art girl.
+- Form screenshots are made using [PureCSS](https://purecss.io/) framework.
 
 ## Contribution
 
