@@ -97,7 +97,7 @@ func init() {
 	}
 }
 
-func runComparison(paths []string) (int, int) {
+func RunComparison(paths []string) (int, int) {
 	opts := pixmatch.NewOptions()
 	images := make([]*pixmatch.Image, 2)
 
@@ -162,7 +162,7 @@ func main() {
 			// }
 			paths = strings.Fields(line)
 			if len(paths) > 0 {
-				px, size = runComparison(paths)
+				px, size = RunComparison(paths)
 			}
 		}
 	}
@@ -170,7 +170,7 @@ func main() {
 	for i, arg := range args {
 		paths[i] = arg
 	}
-	px, size = runComparison(paths)
+	px, size = RunComparison(paths)
 
 	// If no diference remove file.
 	if output != "" && px <= 0 && !keep {
