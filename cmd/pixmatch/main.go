@@ -97,7 +97,7 @@ func init() {
 	}
 }
 
-func runComparison(paths []string) {
+func runComparison(paths []string) (int, int) {
 	opts := pixmatch.NewOptions()
 	images := make([]*pixmatch.Image, 2)
 
@@ -138,18 +138,15 @@ func runComparison(paths []string) {
 		}
 	}
 
-	// If no diference remove file.
-	if output != "" && px <= 0 && !keep {
-		os.Remove(output)
-	}
-
-	output := format(px, percent, images[0])
-	fmt.Fprint(os.Stdout, output)
+	return px, images[0].Size()
 }
 
 func main() {
 	paths := make([]string, 2)
 	args := flag.Args()
+	var px int
+	var size int
+	// TODO deal with watch()
 	if watch {
 		homeDir, _ := os.UserHomeDir()
 		fname := fmt.Sprintf("%s/%s", homeDir, "pixmatch.stream")
@@ -165,7 +162,7 @@ func main() {
 			// }
 			paths = strings.Fields(line)
 			if len(paths) > 0 {
-				runComparison(paths)
+				px, size = runComparison(paths)
 			}
 		}
 	}
@@ -173,18 +170,26 @@ func main() {
 	for i, arg := range args {
 		paths[i] = arg
 	}
-	runComparison(paths)
+	px, size = runComparison(paths)
+
+	// If no diference remove file.
+	if output != "" && px <= 0 && !keep {
+		os.Remove(output)
+	}
+
+	output := format(px, percent, size)
+	fmt.Fprint(os.Stdout, output)
+
 	fpOutout.Close()
-	os.Exit(0)
 }
 
-func format(d int, isPct bool, img *pixmatch.Image) string {
+func format(d int, isPct bool, size int) string {
 	if isPct {
 		format := "%.2f%%"
 		if !n {
 			format += "\n"
 		}
-		pct := float64(d) / float64(img.Size()) * 100
+		pct := float64(d) / float64(size) * 100
 		return fmt.Sprintf(format, pct)
 	}
 	format := "%d"

@@ -120,9 +120,11 @@ Later, it is easier to analyze it with a cool [benchstat](https://pkg.go.dev/gol
 
 Compile WASM file
 
+WASM/WASI is not very stable yet, everything might change.
+
 ```sh
 cd cmd/pixmatch
-GOOS=wasip1 GOARCH=wasm go build -o pixmatch.wasm main.go
+CGO_ENABLED=0 GOOS=wasip1 GOARCH=wasm go build -o pixmatch.wasm main.go
 ```
 
 Node.js exanoke file (index.js)

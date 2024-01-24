@@ -1,1 +1,0 @@
-../../samples/bird-a.jpg ../../samples/bird-b.jpg run ./main.go -w -aa
