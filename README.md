@@ -118,13 +118,15 @@ Later, it is easier to analyze it with a cool [benchstat](https://pkg.go.dev/gol
 
 ## Using with WASM
 
-Compile WASM file
+WASI Preview 1 is very unstable, everything will be changed. This is
+an rough example how it might work with golang <= 1.12.6.
 
-WASM/WASI is not very stable yet, everything might change.
+Compile the WASM file.
+
 
 ```sh
 cd cmd/pixmatch
-CGO_ENABLED=0 GOOS=wasip1 GOARCH=wasm go build -o pixmatch.wasm main.go
+GOOS=wasip1 GOARCH=wasm go build -o pixmatch.wasm main.go
 ```
 
 Node.js exanoke file (index.js)
